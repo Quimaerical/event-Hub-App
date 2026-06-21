@@ -1,0 +1,9 @@
+{
+  "name": "eventhub-developer-plugin",
+  "version": "1.0.0",
+  "description": "Developer tools, clean architecture guides, and testing skills for the Event Hub mobile client.",
+  "author": {
+    "name": "Antigravity Assistant"
+  },
+  "license": "MIT"
+}

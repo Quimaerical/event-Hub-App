@@ -213,7 +213,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.calendar_today_outlined, size: 64, color: AppTheme.textMuted.withOpacity(0.5)),
+            Icon(Icons.calendar_today_outlined, size: 64, color: AppTheme.textMuted.withValues(alpha: 0.5)),
             const SizedBox(height: 16),
             const Text(
               'No se encontraron eventos',
@@ -257,8 +257,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     return Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: AppTheme.primaryViolet.withOpacity(0.1),
-                        border: Border.all(color: AppTheme.primaryViolet.withOpacity(0.2), width: 1),
+                        color: AppTheme.primaryViolet.withValues(alpha: 0.1),
+                        border: Border.all(color: AppTheme.primaryViolet.withValues(alpha: 0.2), width: 1),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(

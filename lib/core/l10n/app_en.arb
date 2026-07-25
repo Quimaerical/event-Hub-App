@@ -1,0 +1,8 @@
+{
+  "@@locale": "en",
+  "appTitle": "Event Hub",
+  "errorGeneric": "An unexpected error occurred.",
+  "errorUnauthorized": "Unauthorized. Please login again.",
+  "errorRateLimit": "Too many requests. Please try again later.",
+  "errorServer": "Server error. Please try again later."
+}

@@ -210,7 +210,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: AppTheme.cardBg.withOpacity(0.5),
+                      color: AppTheme.cardBg.withValues(alpha: 0.5),
                       border: Border.all(color: AppTheme.borderDark),
                       borderRadius: BorderRadius.circular(12),
                     ),

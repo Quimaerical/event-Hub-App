@@ -63,8 +63,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                     return Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppTheme.primaryViolet.withOpacity(0.1),
-                        border: Border.all(color: AppTheme.primaryViolet.withOpacity(0.3)),
+                        color: AppTheme.primaryViolet.withValues(alpha: 0.1),
+                        border: Border.all(color: AppTheme.primaryViolet.withValues(alpha: 0.3)),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -193,9 +193,9 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryViolet.withOpacity(0.05),
+                  color: AppTheme.primaryViolet.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppTheme.primaryViolet.withOpacity(0.2)),
+                  border: Border.all(color: AppTheme.primaryViolet.withValues(alpha: 0.2)),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

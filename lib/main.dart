@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+
+import 'core/l10n/app_localizations.dart';
+
 import 'core/network/api_client.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
@@ -62,6 +65,9 @@ class MyApp extends StatelessWidget {
           title: 'Event Hub',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.darkTheme,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('es'), // Default locale to Spanish
           home: const AuthGate(),
         ),
       ),

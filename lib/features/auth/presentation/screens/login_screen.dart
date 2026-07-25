@@ -8,6 +8,9 @@ import '../bloc/auth_state.dart';
 import 'register_screen.dart';
 import '../../../dashboard/presentation/screens/dashboard_screen.dart';
 
+/// Alias for conventional naming
+typedef LoginView = LoginScreen;
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -52,6 +55,10 @@ class _LoginScreenState extends State<LoginScreen> {
               SnackBar(
                 content: Text(state.error),
                 backgroundColor: Colors.redAccent,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             );
           }
@@ -61,193 +68,247 @@ class _LoginScreenState extends State<LoginScreen> {
             constraints: const BoxConstraints(maxWidth: 600),
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Text(
-                      'EventHub',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 36,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.skyBlue,
-                        letterSpacing: 1.0,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Inicia sesión en tu cuenta para continuar',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 14, color: AppTheme.textMuted),
-                    ),
-                    const SizedBox(height: 40),
-
-                    // Email Field
-                    TextFormField(
-                      controller: _emailController,
-                      validator: AppValidators.validateEmail,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(
-                        labelText: 'Correo Electrónico',
-                        hintText: 'ejemplo@correo.com',
-                        prefixIcon: Icon(
-                          Icons.email_outlined,
-                          color: AppTheme.textMuted,
+              child: Container(
+                decoration: AppTheme.darkGlassDecoration,
+                padding: const EdgeInsets.all(28.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const _LoginHeader(),
+                      const SizedBox(height: 32),
+                      const _InputLabel(label: 'CORREO ELECTRÓNICO'),
+                      const SizedBox(height: 6),
+                      TextFormField(
+                        controller: _emailController,
+                        validator: AppValidators.validateEmail,
+                        keyboardType: TextInputType.emailAddress,
+                        decoration: const InputDecoration(
+                          hintText: 'ejemplo@correo.com',
+                          prefixIcon: Icon(
+                            Icons.email_outlined,
+                            color: AppTheme.textMuted,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Password Field
-                    TextFormField(
-                      controller: _passwordController,
-                      validator: AppValidators.validatePassword,
-                      obscureText: true,
-                      decoration: const InputDecoration(
-                        labelText: 'Contraseña',
-                        hintText: '••••••••',
-                        prefixIcon: Icon(
-                          Icons.lock_outlined,
-                          color: AppTheme.textMuted,
+                      const SizedBox(height: 20),
+                      const _InputLabel(label: 'CONTRASEÑA'),
+                      const SizedBox(height: 6),
+                      TextFormField(
+                        controller: _passwordController,
+                        validator: AppValidators.validatePassword,
+                        obscureText: true,
+                        decoration: const InputDecoration(
+                          hintText: '••••••••',
+                          prefixIcon: Icon(
+                            Icons.lock_outlined,
+                            color: AppTheme.textMuted,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Submit Button
-                    BlocBuilder<AuthBloc, AuthState>(
-                      builder: (context, state) {
-                        if (state is AuthLoading) {
-                          return const Center(
-                            child: CircularProgressIndicator(
-                              color: AppTheme.skyBlue,
-                            ),
-                          );
-                        }
-                        return ElevatedButton(
-                          onPressed: _submit,
-                          child: const Text('Iniciar Sesión'),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Social Login Divider
-                    const Row(
-                      children: [
-                        Expanded(child: Divider(color: AppTheme.borderDark)),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16.0),
-                          child: Text(
-                            'O CONECTAR CON',
-                            style: TextStyle(
-                              color: AppTheme.textMuted,
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        Expanded(child: Divider(color: AppTheme.borderDark)),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-
-                    // OAuth login simulation buttons
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Redirigiendo a Google OAuth...',
-                                  ),
-                                ),
-                              );
-                            },
-                            style: OutlinedButton.styleFrom(
-                              side: const BorderSide(
-                                color: AppTheme.borderDark,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                            ),
-                            child: const Text(
-                              'Google',
-                              style: TextStyle(color: AppTheme.textLight),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Redirigiendo a GitHub OAuth...',
-                                  ),
-                                ),
-                              );
-                            },
-                            style: OutlinedButton.styleFrom(
-                              side: const BorderSide(
-                                color: AppTheme.borderDark,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                            ),
-                            child: const Text(
-                              'GitHub',
-                              style: TextStyle(color: AppTheme.textLight),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 32),
-
-                    // Navigation link
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          '¿No tienes cuenta? ',
-                          style: TextStyle(color: AppTheme.textMuted),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => const RegisterScreen(),
-                              ),
-                            );
-                          },
-                          child: const Text(
-                            'Regístrate',
-                            style: TextStyle(
-                              color: AppTheme.skyBlue,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                      const SizedBox(height: 28),
+                      _SubmitButton(onPressed: _submit),
+                      const SizedBox(height: 28),
+                      const _OAuthSection(),
+                      const SizedBox(height: 24),
+                      const _RegisterFooterLink(),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+class _LoginHeader extends StatelessWidget {
+  const _LoginHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Column(
+      children: [
+        Text(
+          'EVENT HUB',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.w800,
+            color: AppTheme.skyBlue,
+            letterSpacing: 2.0,
+          ),
+        ),
+        SizedBox(height: 8),
+        Text(
+          'Inicia sesión en tu cuenta para continuar',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 14, color: AppTheme.textMuted),
+        ),
+      ],
+    );
+  }
+}
+
+class _InputLabel extends StatelessWidget {
+  final String label;
+
+  const _InputLabel({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      label,
+      style: const TextStyle(
+        fontSize: 11,
+        fontWeight: FontWeight.bold,
+        color: AppTheme.textMuted,
+        letterSpacing: 1.2,
+      ),
+    );
+  }
+}
+
+class _SubmitButton extends StatelessWidget {
+  final VoidCallback onPressed;
+
+  const _SubmitButton({required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        if (state is AuthLoading) {
+          return const Center(
+            child: CircularProgressIndicator(color: AppTheme.skyBlue),
+          );
+        }
+        return ElevatedButton(
+          onPressed: onPressed,
+          child: const Text('Iniciar Sesión'),
+        );
+      },
+    );
+  }
+}
+
+class _OAuthSection extends StatelessWidget {
+  const _OAuthSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const Row(
+          children: [
+            Expanded(child: Divider(color: AppTheme.borderDark)),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                'O CONECTAR CON',
+                style: TextStyle(
+                  color: AppTheme.textMuted,
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2,
+                ),
+              ),
+            ),
+            Expanded(child: Divider(color: AppTheme.borderDark)),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Redirigiendo a Google OAuth...'),
+                    ),
+                  );
+                },
+                icon: const Icon(
+                  Icons.g_mobiledata,
+                  color: AppTheme.skyBlue,
+                  size: 22,
+                ),
+                label: const Text(
+                  'Google',
+                  style: TextStyle(color: AppTheme.textLight, fontSize: 13),
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: AppTheme.borderDark),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Redirigiendo a GitHub OAuth...'),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.code, color: AppTheme.skyBlue, size: 18),
+                label: const Text(
+                  'GitHub',
+                  style: TextStyle(color: AppTheme.textLight, fontSize: 13),
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: AppTheme.borderDark),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _RegisterFooterLink extends StatelessWidget {
+  const _RegisterFooterLink();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Text(
+          '¿No tienes cuenta? ',
+          style: TextStyle(color: AppTheme.textMuted),
+        ),
+        GestureDetector(
+          onTap: () {
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const RegisterScreen()));
+          },
+          child: const Text(
+            'Regístrate',
+            style: TextStyle(
+              color: AppTheme.skyBlue,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

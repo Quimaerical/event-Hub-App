@@ -54,7 +54,7 @@ void main() {
       );
 
       // Verify that the title and subtitle are rendered
-      expect(find.text('EventHub'), findsOneWidget);
+      expect(find.text('EVENT HUB'), findsOneWidget);
       expect(
         find.text('Inicia sesión en tu cuenta para continuar'),
         findsOneWidget,
@@ -62,8 +62,8 @@ void main() {
 
       // Verify that text input fields are present
       expect(find.byType(TextFormField), findsNWidgets(2));
-      expect(find.text('Correo Electrónico'), findsOneWidget);
-      expect(find.text('Contraseña'), findsOneWidget);
+      expect(find.text('CORREO ELECTRÓNICO'), findsOneWidget);
+      expect(find.text('CONTRASEÑA'), findsOneWidget);
 
       // Verify that the login button is present
       expect(
@@ -108,11 +108,8 @@ void main() {
       );
 
       // Enter invalid email and valid password
-      await tester.enterText(
-        find.bySemanticsLabel('Correo Electrónico'),
-        'invalid-email',
-      );
-      await tester.enterText(find.bySemanticsLabel('Contraseña'), '123456');
+      await tester.enterText(find.byType(TextFormField).at(0), 'invalid-email');
+      await tester.enterText(find.byType(TextFormField).at(1), '123456');
 
       // Click the login button
       await tester.tap(find.widgetWithText(ElevatedButton, 'Iniciar Sesión'));

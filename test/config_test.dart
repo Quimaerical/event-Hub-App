@@ -12,6 +12,9 @@ void main() {
   });
 
   test('AppConfig apiBaseUrl returns production URL by default', () {
-    expect(AppConfig.apiBaseUrl, equals('https://event-hub-back.vercel.app/api/v1'));
+    expect(
+      AppConfig.apiBaseUrl,
+      equals('https://event-hub-back.vercel.app/api/v1'),
+    );
   });
 }

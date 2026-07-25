@@ -13,6 +13,7 @@ class EventModel {
   final List<CategoryModel> categorias;
   final int cupoMaximo; // local capacity limit
   final DateTime createdAt;
+  final String? imagenUrl;
 
   const EventModel({
     required this.id,
@@ -25,7 +26,10 @@ class EventModel {
     required this.categorias,
     this.cupoMaximo = 50, // default limit
     required this.createdAt,
+    this.imagenUrl,
   });
+
+  String get organizadorNombre => creadorNombre;
 
   factory EventModel.fromJson(Map<String, dynamic> json) {
     var catsJson = json['categorias'] as List?;
@@ -58,6 +62,7 @@ class EventModel {
       categorias: cats,
       cupoMaximo: json['cupo_maximo'] as int? ?? 50,
       createdAt: parsedCreated,
+      imagenUrl: json['imagen_url']?.toString(),
     );
   }
 

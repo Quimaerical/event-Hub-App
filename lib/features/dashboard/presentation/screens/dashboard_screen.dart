@@ -6,12 +6,16 @@ import '../../../auth/presentation/bloc/auth_event.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../../auth/presentation/screens/login_screen.dart';
 import '../../../events/presentation/screens/create_event_screen.dart';
-import '../../../events/presentation/screens/event_detail_screen.dart';
 import '../bloc/dashboard_bloc.dart';
 import '../bloc/dashboard_event.dart';
 import '../bloc/dashboard_state.dart';
-import '../../data/models/category_model.dart';
-import '../../../events/data/models/event_model.dart';
+import '../widgets/category_filter_list.dart';
+import '../widgets/dashboard_hero.dart';
+import '../widgets/dashboard_search_bar.dart';
+import '../widgets/event_card.dart';
+
+/// Alias for conventional naming
+typedef DashboardView = DashboardScreen;
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -75,150 +79,97 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: CircularProgressIndicator(color: AppTheme.skyBlue),
                   );
                 } else if (state is DashboardFailure) {
-                  return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.error_outline,
-                            size: 60,
-                            color: Colors.redAccent,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            state.error,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(color: AppTheme.textLight),
-                          ),
-                          const SizedBox(height: 24),
-                          ElevatedButton(
-                            onPressed: () => context.read<DashboardBloc>().add(
-                              LoadDashboardData(),
-                            ),
-                            child: const Text('Reintentar'),
-                          ),
-                        ],
-                      ),
-                    ),
+                  return _DashboardErrorView(
+                    errorMessage: state.error,
+                    onRetry: () =>
+                        context.read<DashboardBloc>().add(LoadDashboardData()),
                   );
                 } else if (state is DashboardLoaded) {
-                  return Column(
-                    children: [
-                      // Search Bar Input
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0,
-                          vertical: 8.0,
-                        ),
-                        child: TextField(
-                          controller: _searchController,
-                          onChanged: (val) {
-                            context.read<DashboardBloc>().add(
-                              SearchQueryChanged(query: val),
-                            );
-                          },
-                          decoration: InputDecoration(
-                            hintText: 'Buscar eventos...',
-                            prefixIcon: const Icon(
-                              Icons.search,
-                              color: AppTheme.textMuted,
-                            ),
-                            suffixIcon: _searchController.text.isNotEmpty
-                                ? IconButton(
-                                    icon: const Icon(
-                                      Icons.clear,
-                                      color: AppTheme.textMuted,
-                                    ),
-                                    onPressed: () {
-                                      setState(() {
-                                        _searchController.clear();
-                                      });
-                                      context.read<DashboardBloc>().add(
-                                        SearchQueryChanged(query: ''),
-                                      );
-                                    },
-                                  )
-                                : null,
-                          ),
-                        ),
-                      ),
-
-                      // Scrollable Categories Chip Filters
-                      SizedBox(
-                        height: 50,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                          itemCount: state.categories.length + 1,
-                          itemBuilder: (context, index) {
-                            final isAll = index == 0;
-                            final CategoryModel? category = isAll
-                                ? null
-                                : state.categories[index - 1];
-                            final id = isAll ? 0 : category!.id;
-                            final name = isAll ? 'Todas' : category!.nombre;
-                            final isSelected = state.selectedCategoryId == id;
-
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 4.0,
-                                vertical: 6.0,
-                              ),
-                              child: ChoiceChip(
-                                label: Text(name),
-                                selected: isSelected,
-                                selectedColor: AppTheme.skyBlue,
-                                labelStyle: TextStyle(
-                                  color: isSelected
-                                      ? Colors.white
-                                      : AppTheme.textMuted,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                ),
-                                backgroundColor: AppTheme.cardBg,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                  side: BorderSide(
-                                    color: isSelected
-                                        ? AppTheme.skyBlue
-                                        : AppTheme.borderDark,
-                                  ),
-                                ),
-                                onSelected: (_) {
-                                  context.read<DashboardBloc>().add(
-                                    CategoryFilterChanged(categoryId: id),
-                                  );
-                                },
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-
-                      // Dynamic Events ListView
-                      Expanded(
-                        child: state.events.isEmpty
-                            ? _buildEmptyState()
-                            : RefreshIndicator(
-                                color: AppTheme.skyBlue,
-                                onRefresh: () async {
-                                  context.read<DashboardBloc>().add(
-                                    LoadDashboardData(),
-                                  );
-                                },
-                                child: ListView.builder(
-                                  padding: const EdgeInsets.all(16.0),
-                                  itemCount: state.events.length,
-                                  itemBuilder: (context, index) {
-                                    final event = state.events[index];
-                                    return _buildEventCard(context, event);
+                  return RefreshIndicator(
+                    color: AppTheme.skyBlue,
+                    onRefresh: () async {
+                      context.read<DashboardBloc>().add(LoadDashboardData());
+                    },
+                    child: CustomScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      slivers: [
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const DashboardHero(),
+                                const SizedBox(height: 20),
+                                DashboardSearchBar(
+                                  controller: _searchController,
+                                  onChanged: (val) {
+                                    context.read<DashboardBloc>().add(
+                                      SearchQueryChanged(query: val),
+                                    );
+                                  },
+                                  onClear: () {
+                                    setState(() {
+                                      _searchController.clear();
+                                    });
+                                    context.read<DashboardBloc>().add(
+                                      SearchQueryChanged(query: ''),
+                                    );
                                   },
                                 ),
-                              ),
-                      ),
-                    ],
+                                const SizedBox(height: 16),
+                                CategoryFilterList(
+                                  categories: state.categories,
+                                  selectedCategoryId: state.selectedCategoryId,
+                                  onCategorySelected: (id) {
+                                    context.read<DashboardBloc>().add(
+                                      CategoryFilterChanged(categoryId: id),
+                                    );
+                                  },
+                                ),
+                                const SizedBox(height: 16),
+                              ],
+                            ),
+                          ),
+                        ),
+                        if (state.events.isEmpty)
+                          const SliverFillRemaining(
+                            hasScrollBody: false,
+                            child: _DashboardEmptyState(),
+                          )
+                        else
+                          SliverPadding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                            ),
+                            sliver: SliverLayoutBuilder(
+                              builder: (context, constraints) {
+                                final isWide =
+                                    constraints.crossAxisExtent > 500;
+                                final crossAxisCount = isWide ? 2 : 1;
+
+                                return SliverGrid(
+                                  delegate: SliverChildBuilderDelegate((
+                                    context,
+                                    index,
+                                  ) {
+                                    final event = state.events[index];
+                                    return EventCard(event: event);
+                                  }, childCount: state.events.length),
+                                  gridDelegate:
+                                      SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: crossAxisCount,
+                                        mainAxisSpacing: 16,
+                                        crossAxisSpacing: 16,
+                                        childAspectRatio: isWide ? 0.72 : 0.85,
+                                      ),
+                                );
+                              },
+                            ),
+                          ),
+                        const SliverToBoxAdapter(child: SizedBox(height: 24)),
+                      ],
+                    ),
                   );
                 }
                 return const SizedBox.shrink();
@@ -242,8 +193,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
+}
 
-  Widget _buildEmptyState() {
+class _DashboardEmptyState extends StatelessWidget {
+  const _DashboardEmptyState();
+
+  @override
+  Widget build(BuildContext context) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -252,7 +208,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             Icon(
               Icons.calendar_today_outlined,
-              size: 64,
+              size: 60,
               color: AppTheme.textMuted.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
@@ -275,123 +231,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
+}
 
-  Widget _buildEventCard(BuildContext context, EventModel event) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16.0),
-      decoration: AppTheme.darkGlassDecoration,
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(16),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => EventDetailScreen(event: event),
-              ),
-            );
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Categories Badges List
-                if (event.categorias.isNotEmpty)
-                  Wrap(
-                    spacing: 4,
-                    runSpacing: 4,
-                    children: event.categorias.map((c) {
-                      return Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppTheme.skyBlue.withValues(alpha: 0.15),
-                          border: Border.all(
-                            color: AppTheme.skyBlue.withValues(alpha: 0.3),
-                            width: 1,
-                          ),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          c.nombre.toUpperCase(),
-                          style: const TextStyle(
-                            fontSize: 9,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.skyBlue,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                const SizedBox(height: 8),
+class _DashboardErrorView extends StatelessWidget {
+  final String errorMessage;
+  final VoidCallback onRetry;
 
-                // Title
-                Text(
-                  event.titulo,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.textLight,
-                  ),
-                ),
-                const SizedBox(height: 8),
+  const _DashboardErrorView({
+    required this.errorMessage,
+    required this.onRetry,
+  });
 
-                // Short Description
-                Text(
-                  event.descripcion,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppTheme.textMuted,
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Calendar and Pin Location Row
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.calendar_month_outlined,
-                      size: 14,
-                      color: AppTheme.skyBlue,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      '${event.fecha.day}/${event.fecha.month}/${event.fecha.year} ${event.fecha.hour.toString().padLeft(2, '0')}:${event.fecha.minute.toString().padLeft(2, '0')}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.textMuted,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    const Icon(
-                      Icons.location_on_outlined,
-                      size: 14,
-                      color: AppTheme.skyBlue,
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        event.ubicacion,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppTheme.textMuted,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 60, color: Colors.redAccent),
+            const SizedBox(height: 16),
+            Text(
+              errorMessage,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: AppTheme.textLight),
             ),
-          ),
+            const SizedBox(height: 24),
+            ElevatedButton(onPressed: onRetry, child: const Text('Reintentar')),
+          ],
         ),
       ),
     );

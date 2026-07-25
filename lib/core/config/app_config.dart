@@ -3,7 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 class AppConfig {
   AppConfig._();
 
-  // Obfuscated representation of fallback: "http://10.0.2.2:8080"
+  // Obfuscated representation of fallback: "https://event-hub-back.vercel.app/api/v1"
   // XOR key used: 90 (0x5A)
   static const int _xorKey = 90;
   static const List<int> _obfuscatedBaseUrl = [
@@ -11,22 +11,42 @@ class AppConfig {
     46,
     46,
     42,
+    41,
     96,
     117,
     117,
+    63,
+    44,
+    63,
+    52,
+    46,
+    119,
+    50,
+    47,
+    56,
+    119,
+    56,
+    59,
+    57,
+    49,
+    116,
+    44,
+    63,
+    40,
+    57,
+    63,
+    54,
+    116,
+    59,
+    42,
+    42,
+    117,
+    59,
+    42,
+    51,
+    117,
+    44,
     107,
-    106,
-    116,
-    106,
-    116,
-    104,
-    116,
-    104,
-    96,
-    98,
-    106,
-    98,
-    106,
   ];
 
   /// Decrypts an obfuscated URL using the XOR key.
@@ -44,9 +64,11 @@ class AppConfig {
     }
 
     // 2. Check dotenv fallback
-    final String? dotEnvVal = dotenv.env['API_BASE_URL'];
-    if (dotEnvVal != null && dotEnvVal.isNotEmpty) {
-      return dotEnvVal;
+    if (dotenv.isInitialized) {
+      final String? dotEnvVal = dotenv.env['API_BASE_URL'];
+      if (dotEnvVal != null && dotEnvVal.isNotEmpty) {
+        return dotEnvVal;
+      }
     }
 
     // 3. Fallback to XOR-obfuscated URL

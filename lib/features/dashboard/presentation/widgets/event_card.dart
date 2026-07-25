@@ -235,11 +235,7 @@ class _EventCardState extends State<EventCard> {
         ),
       ),
       child: const Center(
-        child: Icon(
-          Icons.event,
-          size: 40,
-          color: AppTheme.skyBlue,
-        ),
+        child: Icon(Icons.event, size: 40, color: AppTheme.skyBlue),
       ),
     );
   }

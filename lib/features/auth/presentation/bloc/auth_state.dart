@@ -9,8 +9,10 @@ class AuthLoading extends AuthState {}
 
 class Authenticated extends AuthState {
   final String email;
+  final int? userId;
+  final String? userRole;
 
-  Authenticated({required this.email});
+  Authenticated({required this.email, this.userId, this.userRole});
 }
 
 class Unauthenticated extends AuthState {}

@@ -15,6 +15,7 @@ class EventBloc extends Bloc<EventEvent, EventState> {
     on<CreateEventRequested>(_onCreateEventRequested);
     on<SuggestDescriptionRequested>(_onSuggestDescriptionRequested);
     on<RegisterAttendeeRequested>(_onRegisterAttendeeRequested);
+    on<CancelRegistrationRequested>(_onCancelRegistrationRequested);
   }
 
   Future<void> _onCreateEventRequested(
@@ -100,6 +101,27 @@ class EventBloc extends Bloc<EventEvent, EventState> {
         EventRegistrationSuccess(
           registeredCount: newCount,
           message: '¡Se ha registrado exitosamente! Su cupo ha sido reservado.',
+        ),
+      );
+    } catch (e) {
+      emit(EventFailure(error: e.toString()));
+    }
+  }
+
+  Future<void> _onCancelRegistrationRequested(
+    CancelRegistrationRequested event,
+    Emitter<EventState> emit,
+  ) async {
+    emit(EventLoading());
+    try {
+      final currentCount = _localRegistrations[event.eventId] ?? 1;
+      final newCount = (currentCount - 1).clamp(0, 9999);
+      _localRegistrations[event.eventId] = newCount;
+
+      emit(
+        EventRegistrationSuccess(
+          registeredCount: newCount,
+          message: 'Inscripción cancelada correctamente.',
         ),
       );
     } catch (e) {

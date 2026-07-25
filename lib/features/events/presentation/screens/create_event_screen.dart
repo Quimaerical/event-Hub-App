@@ -4,12 +4,15 @@ import '../../../../core/network/api_client.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../dashboard/data/models/category_model.dart';
+import '../../data/models/event_model.dart';
 import '../bloc/event_bloc.dart';
 import '../bloc/event_event.dart';
 import '../bloc/event_state.dart';
 
 class CreateEventScreen extends StatefulWidget {
-  const CreateEventScreen({super.key});
+  final EventModel? eventToEdit;
+
+  const CreateEventScreen({super.key, this.eventToEdit});
 
   @override
   State<CreateEventScreen> createState() => _CreateEventScreenState();
@@ -31,6 +34,14 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   @override
   void initState() {
     super.initState();
+    if (widget.eventToEdit != null) {
+      final e = widget.eventToEdit!;
+      _tituloController.text = e.titulo;
+      _ubicacionController.text = e.ubicacion;
+      _descripcionController.text = e.descripcion;
+      _selectedDateTime = e.fecha;
+      _selectedCategoryIds.addAll(e.categorias.map((c) => c.id));
+    }
     _loadCategories();
   }
 

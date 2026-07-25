@@ -35,3 +35,10 @@ class RegisterAttendeeRequested extends EventEvent {
 
   RegisterAttendeeRequested({required this.event});
 }
+
+// Cancels attendance registration for an event
+class CancelRegistrationRequested extends EventEvent {
+  final int eventId;
+
+  CancelRegistrationRequested({required this.eventId});
+}

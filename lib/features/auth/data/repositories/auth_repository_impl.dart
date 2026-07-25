@@ -9,10 +9,7 @@ class AuthRepositoryImpl implements AuthRepository {
   final ApiClient apiClient;
   final FlutterSecureStorage secureStorage;
 
-  AuthRepositoryImpl({
-    required this.apiClient,
-    required this.secureStorage,
-  });
+  AuthRepositoryImpl({required this.apiClient, required this.secureStorage});
 
   @override
   Future<String> login(String email, String password) async {
@@ -20,10 +17,7 @@ class AuthRepositoryImpl implements AuthRepository {
       // Send credentials URL-encoded matching Gin c.PostForm
       final response = await apiClient.dio.post(
         AppConstants.login,
-        data: {
-          'email': email,
-          'password': password,
-        },
+        data: {'email': email, 'password': password},
         options: Options(
           contentType: Headers.formUrlEncodedContentType,
           followRedirects: false, // intercept the cookie before redirecting
@@ -57,11 +51,7 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final response = await apiClient.dio.post(
         AppConstants.register,
-        data: {
-          'nombre': nombre,
-          'email': email,
-          'password': password,
-        },
+        data: {'nombre': nombre, 'email': email, 'password': password},
         options: Options(
           contentType: Headers.formUrlEncodedContentType,
           followRedirects: false,
@@ -77,13 +67,17 @@ class AuthRepositoryImpl implements AuthRepository {
       }
 
       if (token == null) {
-        throw const HttpException('Error al crear la cuenta. Compruebe los datos e intente de nuevo.');
+        throw const HttpException(
+          'Error al crear la cuenta. Compruebe los datos e intente de nuevo.',
+        );
       }
 
       await saveSession(token, email);
       return token;
     } on DioException catch (e) {
-      throw HttpException(e.error?.toString() ?? 'Error al registrar el usuario');
+      throw HttpException(
+        e.error?.toString() ?? 'Error al registrar el usuario',
+      );
     }
   }
 

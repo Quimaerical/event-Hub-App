@@ -35,9 +35,7 @@ class EventBloc extends Bloc<EventEvent, EventState> {
           'ubicacion': event.ubicacion,
           'categorias': event.categoryIds.map((id) => id.toString()).toList(),
         },
-        options: Options(
-          contentType: Headers.formUrlEncodedContentType,
-        ),
+        options: Options(contentType: Headers.formUrlEncodedContentType),
       );
 
       final data = response.data as Map<String, dynamic>;
@@ -45,10 +43,12 @@ class EventBloc extends Bloc<EventEvent, EventState> {
           ? EventModel.fromJson(data['evento'] as Map<String, dynamic>)
           : null;
 
-      emit(EventSuccess(
-        message: '¡El evento ha sido creado exitosamente!',
-        event: createdEvent,
-      ));
+      emit(
+        EventSuccess(
+          message: '¡El evento ha sido creado exitosamente!',
+          event: createdEvent,
+        ),
+      );
     } catch (e) {
       emit(EventFailure(error: e.toString().replaceAll('Exception: ', '')));
     }
@@ -62,10 +62,7 @@ class EventBloc extends Bloc<EventEvent, EventState> {
     try {
       final response = await apiClient.dio.post(
         AppConstants.suggestDescription,
-        data: {
-          'titulo': event.titulo,
-          'ubicacion': event.ubicacion,
-        },
+        data: {'titulo': event.titulo, 'ubicacion': event.ubicacion},
       );
 
       final data = response.data as Map<String, dynamic>;
@@ -87,19 +84,24 @@ class EventBloc extends Bloc<EventEvent, EventState> {
 
       // Validate capacity limit checks
       if (currentCount >= event.event.cupoMaximo) {
-        emit(EventFailure(
-          error: 'Lo sentimos, este evento ha alcanzado el límite máximo de ${event.event.cupoMaximo} personas.',
-        ));
+        emit(
+          EventFailure(
+            error:
+                'Lo sentimos, este evento ha alcanzado el límite máximo de ${event.event.cupoMaximo} personas.',
+          ),
+        );
         return;
       }
 
       final newCount = currentCount + 1;
       _localRegistrations[event.event.id] = newCount;
 
-      emit(EventRegistrationSuccess(
-        registeredCount: newCount,
-        message: '¡Se ha registrado exitosamente! Su cupo ha sido reservado.',
-      ));
+      emit(
+        EventRegistrationSuccess(
+          registeredCount: newCount,
+          message: '¡Se ha registrado exitosamente! Su cupo ha sido reservado.',
+        ),
+      );
     } catch (e) {
       emit(EventFailure(error: e.toString()));
     }

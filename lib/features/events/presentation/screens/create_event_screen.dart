@@ -20,11 +20,11 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   final _tituloController = TextEditingController();
   final _ubicacionController = TextEditingController();
   final _descripcionController = TextEditingController();
-  
+
   DateTime? _selectedDateTime;
   List<CategoryModel> _categoriesList = [];
   final List<int> _selectedCategoryIds = [];
-  
+
   bool _isLoadingCategories = true;
   String? _categoriesError;
 
@@ -46,12 +46,14 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     try {
       final apiClient = context.read<ApiClient>();
       final response = await apiClient.dio.get('/eventos/crear');
-      
+
       final data = response.data as Map<String, dynamic>;
       final catsJson = data['categorias'] as List? ?? [];
-      
+
       setState(() {
-        _categoriesList = catsJson.map((e) => CategoryModel.fromJson(e as Map<String, dynamic>)).toList();
+        _categoriesList = catsJson
+            .map((e) => CategoryModel.fromJson(e as Map<String, dynamic>))
+            .toList();
         _isLoadingCategories = false;
       });
     } catch (e) {
@@ -69,16 +71,16 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
-    
+
     if (date == null) return;
-    
+
     if (!mounted) return;
-    
+
     final time = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
     );
-    
+
     if (time == null) return;
 
     setState(() {
@@ -95,17 +97,19 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   void _generateAIDescription() {
     final title = _tituloController.text.trim();
     final location = _ubicacionController.text.trim();
-    
+
     if (title.isEmpty || location.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Por favor, ingrese el título y la ubicación para generar la sugerencia.'),
+          content: Text(
+            'Por favor, ingrese el título y la ubicación para generar la sugerencia.',
+          ),
           backgroundColor: Colors.amber,
         ),
       );
       return;
     }
-    
+
     context.read<EventBloc>().add(
       SuggestDescriptionRequested(titulo: title, ubicacion: location),
     );
@@ -148,16 +152,19 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Crear Evento'),
-      ),
+      appBar: AppBar(title: const Text('Crear Evento')),
       body: BlocListener<EventBloc, EventState>(
         listener: (context, state) {
           if (state is EventSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message), backgroundColor: Colors.green),
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: AppTheme.seaGreen,
+              ),
             );
-            Navigator.of(context).pop(true); // Return success to trigger dashboard refresh
+            Navigator.of(
+              context,
+            ).pop(true); // Return success to trigger dashboard refresh
           } else if (state is GeminiSuggestionSuccess) {
             setState(() {
               _descripcionController.text = state.suggestion;
@@ -165,102 +172,132 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('¡Descripción sugerida por Gemini insertada!'),
-                backgroundColor: Colors.green,
+                backgroundColor: AppTheme.seaGreen,
               ),
             );
           } else if (state is EventFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.error), backgroundColor: Colors.redAccent),
+              SnackBar(
+                content: Text(state.error),
+                backgroundColor: Colors.redAccent,
+              ),
             );
           }
         },
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Title
-                TextFormField(
-                  controller: _tituloController,
-                  validator: (val) => AppValidators.validateRequired(val, 'El título'),
-                  decoration: const InputDecoration(
-                    labelText: 'Título del Evento',
-                    hintText: 'Ej. Taller Práctico de Clean Architecture',
-                  ),
-                ),
-                const SizedBox(height: 16),
-                
-                // Location
-                TextFormField(
-                  controller: _ubicacionController,
-                  validator: (val) => AppValidators.validateRequired(val, 'La ubicación'),
-                  decoration: const InputDecoration(
-                    labelText: 'Ubicación o Enlace',
-                    hintText: 'Ej. Auditorio Central o Link de Zoom',
-                  ),
-                ),
-                const SizedBox(height: 16),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Title
+                    TextFormField(
+                      controller: _tituloController,
+                      validator: (val) =>
+                          AppValidators.validateRequired(val, 'El título'),
+                      decoration: const InputDecoration(
+                        labelText: 'Título del Evento',
+                        hintText: 'Ej. Taller Práctico de Clean Architecture',
+                      ),
+                    ),
+                    const SizedBox(height: 16),
 
-                // Date Picker trigger row
-                InkWell(
-                  onTap: _pickDateTime,
-                  borderRadius: BorderRadius.circular(12),
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppTheme.cardBg.withValues(alpha: 0.5),
-                      border: Border.all(color: AppTheme.borderDark),
+                    // Location
+                    TextFormField(
+                      controller: _ubicacionController,
+                      validator: (val) =>
+                          AppValidators.validateRequired(val, 'La ubicación'),
+                      decoration: const InputDecoration(
+                        labelText: 'Ubicación o Enlace',
+                        hintText: 'Ej. Auditorio Central o Link de Zoom',
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Date Picker trigger row
+                    InkWell(
+                      onTap: _pickDateTime,
                       borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          _selectedDateTime == null
-                              ? 'Seleccionar Fecha y Hora'
-                              : 'Fecha: ${_selectedDateTime!.day}/${_selectedDateTime!.month}/${_selectedDateTime!.year}  Hora: ${_selectedDateTime!.hour.toString().padLeft(2, '0')}:${_selectedDateTime!.minute.toString().padLeft(2, '0')}',
-                          style: TextStyle(
-                            color: _selectedDateTime == null ? AppTheme.textMuted : AppTheme.textLight,
-                            fontSize: 14,
-                          ),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppTheme.cardBg.withValues(alpha: 0.5),
+                          border: Border.all(color: AppTheme.borderDark),
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        const Icon(Icons.calendar_today, color: AppTheme.primaryViolet),
-                      ],
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              _selectedDateTime == null
+                                  ? 'Seleccionar Fecha y Hora'
+                                  : 'Fecha: ${_selectedDateTime!.day}/${_selectedDateTime!.month}/${_selectedDateTime!.year}  Hora: ${_selectedDateTime!.hour.toString().padLeft(2, '0')}:${_selectedDateTime!.minute.toString().padLeft(2, '0')}',
+                              style: TextStyle(
+                                color: _selectedDateTime == null
+                                    ? AppTheme.textMuted
+                                    : AppTheme.textLight,
+                                fontSize: 14,
+                              ),
+                            ),
+                            const Icon(
+                              Icons.calendar_today,
+                              color: AppTheme.skyBlue,
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(height: 24),
+                    const SizedBox(height: 24),
 
-                // Categories list section
-                const Text(
-                  'Categorías',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.textLight),
-                ),
-                const SizedBox(height: 8),
-                _isLoadingCategories
-                    ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryViolet))
-                    : _categoriesError != null
-                        ? Text(_categoriesError!, style: const TextStyle(color: Colors.redAccent))
+                    // Categories list section
+                    const Text(
+                      'Categorías',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.textLight,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    _isLoadingCategories
+                        ? const Center(
+                            child: CircularProgressIndicator(
+                              color: AppTheme.skyBlue,
+                            ),
+                          )
+                        : _categoriesError != null
+                        ? Text(
+                            _categoriesError!,
+                            style: const TextStyle(color: Colors.redAccent),
+                          )
                         : Wrap(
                             spacing: 8,
                             runSpacing: 8,
                             children: _categoriesList.map((category) {
-                              final isSelected = _selectedCategoryIds.contains(category.id);
+                              final isSelected = _selectedCategoryIds.contains(
+                                category.id,
+                              );
                               return FilterChip(
                                 label: Text(category.nombre),
                                 selected: isSelected,
-                                selectedColor: AppTheme.primaryViolet,
+                                selectedColor: AppTheme.skyBlue,
                                 labelStyle: TextStyle(
-                                  color: isSelected ? Colors.white : AppTheme.textMuted,
+                                  color: isSelected
+                                      ? Colors.white
+                                      : AppTheme.textMuted,
                                   fontSize: 12,
                                 ),
                                 backgroundColor: AppTheme.cardBg,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10),
                                   side: BorderSide(
-                                    color: isSelected ? AppTheme.primaryViolet : AppTheme.borderDark,
+                                    color: isSelected
+                                        ? AppTheme.skyBlue
+                                        : AppTheme.borderDark,
                                   ),
                                 ),
                                 onSelected: (selected) {
@@ -275,60 +312,78 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                               );
                             }).toList(),
                           ),
-                const SizedBox(height: 24),
+                    const SizedBox(height: 24),
 
-                // Description Title & Gemini Button
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Descripción del Evento',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.textLight),
+                    // Description Title & Gemini Button
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Descripción del Evento',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.textLight,
+                          ),
+                        ),
+
+                        // Gemini Suggestion Button
+                        BlocBuilder<EventBloc, EventState>(
+                          builder: (context, state) {
+                            final generating = state is EventLoading;
+                            return TextButton.icon(
+                              onPressed: generating
+                                  ? null
+                                  : _generateAIDescription,
+                              icon: const Icon(Icons.bolt, size: 16),
+                              label: Text(
+                                generating
+                                    ? 'Generando...'
+                                    : 'Sugerir con Gemini IA',
+                              ),
+                              style: TextButton.styleFrom(
+                                foregroundColor: AppTheme.skyBlue,
+                                textStyle: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
                     ),
-                    
-                    // Gemini Suggestion Button
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _descripcionController,
+                      validator: (val) =>
+                          AppValidators.validateRequired(val, 'La descripción'),
+                      maxLines: 5,
+                      decoration: const InputDecoration(
+                        hintText: 'Cuéntanos de qué se tratará este evento...',
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Submit Button
                     BlocBuilder<EventBloc, EventState>(
                       builder: (context, state) {
-                        final generating = state is EventLoading;
-                        return TextButton.icon(
-                          onPressed: generating ? null : _generateAIDescription,
-                          icon: const Icon(Icons.bolt, size: 16),
-                          label: Text(generating ? 'Generando...' : 'Sugerir con Gemini IA'),
-                          style: TextButton.styleFrom(
-                            foregroundColor: AppTheme.primaryViolet,
-                            textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                          ),
+                        if (state is EventLoading) {
+                          return const Center(
+                            child: CircularProgressIndicator(
+                              color: AppTheme.skyBlue,
+                            ),
+                          );
+                        }
+                        return ElevatedButton(
+                          onPressed: _submit,
+                          child: const Text('Publicar Evento'),
                         );
                       },
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: _descripcionController,
-                  validator: (val) => AppValidators.validateRequired(val, 'La descripción'),
-                  maxLines: 5,
-                  decoration: const InputDecoration(
-                    hintText: 'Cuéntanos de qué se tratará este evento...',
-                  ),
-                ),
-                const SizedBox(height: 32),
-
-                // Submit Button
-                BlocBuilder<EventBloc, EventState>(
-                  builder: (context, state) {
-                    if (state is EventLoading) {
-                      return const Center(
-                        child: CircularProgressIndicator(color: AppTheme.primaryViolet),
-                      );
-                    }
-                    return ElevatedButton(
-                      onPressed: _submit,
-                      child: const Text('Publicar Evento'),
-                    );
-                  },
-                ),
-              ],
+              ),
             ),
           ),
         ),

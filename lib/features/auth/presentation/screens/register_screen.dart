@@ -67,87 +67,99 @@ class _RegisterScreenState extends State<RegisterScreen> {
           }
         },
         child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Text(
-                    'Crea una Cuenta',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.textLight,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Text(
+                      'Crea una Cuenta',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.textLight,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Regístrate para comenzar a crear y unirte a eventos',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppTheme.textMuted,
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Regístrate para comenzar a crear y unirte a eventos',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 14, color: AppTheme.textMuted),
                     ),
-                  ),
-                  const SizedBox(height: 32),
-                  
-                  // Name Field
-                  TextFormField(
-                    controller: _nombreController,
-                    validator: (val) => AppValidators.validateRequired(val, 'El nombre'),
-                    keyboardType: TextInputType.name,
-                    decoration: const InputDecoration(
-                      labelText: 'Nombre Completo',
-                      hintText: 'Ej. Juan Pérez',
-                      prefixIcon: Icon(Icons.person_outline, color: AppTheme.textMuted),
+                    const SizedBox(height: 32),
+
+                    // Name Field
+                    TextFormField(
+                      controller: _nombreController,
+                      validator: (val) =>
+                          AppValidators.validateRequired(val, 'El nombre'),
+                      keyboardType: TextInputType.name,
+                      decoration: const InputDecoration(
+                        labelText: 'Nombre Completo',
+                        hintText: 'Ej. Juan Pérez',
+                        prefixIcon: Icon(
+                          Icons.person_outline,
+                          color: AppTheme.textMuted,
+                        ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  // Email Field
-                  TextFormField(
-                    controller: _emailController,
-                    validator: AppValidators.validateEmail,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
-                      labelText: 'Correo Electrónico',
-                      hintText: 'ejemplo@correo.com',
-                      prefixIcon: Icon(Icons.email_outlined, color: AppTheme.textMuted),
+                    const SizedBox(height: 16),
+
+                    // Email Field
+                    TextFormField(
+                      controller: _emailController,
+                      validator: AppValidators.validateEmail,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: const InputDecoration(
+                        labelText: 'Correo Electrónico',
+                        hintText: 'ejemplo@correo.com',
+                        prefixIcon: Icon(
+                          Icons.email_outlined,
+                          color: AppTheme.textMuted,
+                        ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  // Password Field
-                  TextFormField(
-                    controller: _passwordController,
-                    validator: AppValidators.validatePassword,
-                    obscureText: true,
-                    decoration: const InputDecoration(
-                      labelText: 'Contraseña',
-                      hintText: 'Mínimo 6 caracteres',
-                      prefixIcon: Icon(Icons.lock_outlined, color: AppTheme.textMuted),
+                    const SizedBox(height: 16),
+
+                    // Password Field
+                    TextFormField(
+                      controller: _passwordController,
+                      validator: AppValidators.validatePassword,
+                      obscureText: true,
+                      decoration: const InputDecoration(
+                        labelText: 'Contraseña',
+                        hintText: 'Mínimo 6 caracteres',
+                        prefixIcon: Icon(
+                          Icons.lock_outlined,
+                          color: AppTheme.textMuted,
+                        ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                  
-                  // Submit Button
-                  BlocBuilder<AuthBloc, AuthState>(
-                    builder: (context, state) {
-                      if (state is AuthLoading) {
-                        return const Center(
-                          child: CircularProgressIndicator(color: AppTheme.primaryViolet),
+                    const SizedBox(height: 24),
+
+                    // Submit Button
+                    BlocBuilder<AuthBloc, AuthState>(
+                      builder: (context, state) {
+                        if (state is AuthLoading) {
+                          return const Center(
+                            child: CircularProgressIndicator(
+                              color: AppTheme.skyBlue,
+                            ),
+                          );
+                        }
+                        return ElevatedButton(
+                          onPressed: _submit,
+                          child: const Text('Registrarse'),
                         );
-                      }
-                      return ElevatedButton(
-                        onPressed: _submit,
-                        child: const Text('Registrarse'),
-                      );
-                    },
-                  ),
-                ],
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

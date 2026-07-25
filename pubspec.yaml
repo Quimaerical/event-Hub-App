@@ -32,6 +32,10 @@ dependencies:
   
   # Utilities
   intl: ^0.20.2
+  google: ^0.0.1
+  google_fonts: ^8.2.0
+  firebase_core: ^4.12.1
+  firebase_messaging: ^16.4.3
 
 dev_dependencies:
   flutter_test:

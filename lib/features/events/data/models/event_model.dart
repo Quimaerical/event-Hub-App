@@ -30,17 +30,21 @@ class EventModel {
   factory EventModel.fromJson(Map<String, dynamic> json) {
     var catsJson = json['categorias'] as List?;
     List<CategoryModel> cats = catsJson != null
-        ? catsJson.map((e) => CategoryModel.fromJson(e as Map<String, dynamic>)).toList()
+        ? catsJson
+              .map((e) => CategoryModel.fromJson(e as Map<String, dynamic>))
+              .toList()
         : [];
 
     DateTime parsedFecha = DateTime.now();
     if (json['fecha'] != null) {
-      parsedFecha = DateTime.tryParse(json['fecha'].toString()) ?? DateTime.now();
+      parsedFecha =
+          DateTime.tryParse(json['fecha'].toString()) ?? DateTime.now();
     }
 
     DateTime parsedCreated = DateTime.now();
     if (json['created_at'] != null) {
-      parsedCreated = DateTime.tryParse(json['created_at'].toString()) ?? DateTime.now();
+      parsedCreated =
+          DateTime.tryParse(json['created_at'].toString()) ?? DateTime.now();
     }
 
     return EventModel(

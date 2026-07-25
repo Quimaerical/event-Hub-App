@@ -25,7 +25,10 @@ class EventRegistrationSuccess extends EventState {
   final int registeredCount;
   final String message;
 
-  EventRegistrationSuccess({required this.registeredCount, required this.message});
+  EventRegistrationSuccess({
+    required this.registeredCount,
+    required this.message,
+  });
 }
 
 class EventFailure extends EventState {

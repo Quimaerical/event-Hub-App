@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-
 import 'core/l10n/app_localizations.dart';
 
 import 'core/network/api_client.dart';
@@ -20,7 +19,7 @@ import 'features/events/presentation/bloc/event_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Load local configurations
   try {
     await dotenv.load(fileName: ".env");
@@ -52,7 +51,9 @@ class MyApp extends StatelessWidget {
       child: MultiBlocProvider(
         providers: [
           BlocProvider<AuthBloc>(
-            create: (context) => AuthBloc(authRepository: authRepository)..add(CheckAuthStatus()),
+            create: (context) =>
+                AuthBloc(authRepository: authRepository)
+                  ..add(CheckAuthStatus()),
           ),
           BlocProvider<DashboardBloc>(
             create: (context) => DashboardBloc(apiClient: apiClient),
@@ -64,7 +65,9 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
           title: 'Event Hub',
           debugShowCheckedModeBanner: false,
-          theme: AppTheme.darkTheme,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: ThemeMode.dark,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           locale: const Locale('es'), // Default locale to Spanish
@@ -87,7 +90,7 @@ class AuthGate extends StatelessWidget {
         } else if (state is Unauthenticated || state is AuthFailure) {
           return const LoginScreen();
         }
-        
+
         // Splash / Loader
         return const Scaffold(
           body: Center(
@@ -99,12 +102,12 @@ class AuthGate extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.primaryViolet,
+                    color: AppTheme.skyBlue,
                     letterSpacing: 1.0,
                   ),
                 ),
                 SizedBox(height: 24),
-                CircularProgressIndicator(color: AppTheme.primaryViolet),
+                CircularProgressIndicator(color: AppTheme.skyBlue),
               ],
             ),
           ),

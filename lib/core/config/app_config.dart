@@ -7,7 +7,26 @@ class AppConfig {
   // XOR key used: 90 (0x5A)
   static const int _xorKey = 90;
   static const List<int> _obfuscatedBaseUrl = [
-    50, 46, 46, 42, 96, 117, 117, 107, 106, 116, 106, 116, 104, 116, 104, 96, 98, 106, 98, 106
+    50,
+    46,
+    46,
+    42,
+    96,
+    117,
+    117,
+    107,
+    106,
+    116,
+    106,
+    116,
+    104,
+    116,
+    104,
+    96,
+    98,
+    106,
+    98,
+    106,
   ];
 
   /// Decrypts an obfuscated URL using the XOR key.

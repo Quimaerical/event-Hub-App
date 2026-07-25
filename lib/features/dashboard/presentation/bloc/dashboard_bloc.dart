@@ -29,7 +29,11 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
     final currentState = state;
     if (currentState is DashboardLoaded) {
       emit(DashboardLoading());
-      await _fetchData(emit, query: event.query, categoryId: currentState.selectedCategoryId);
+      await _fetchData(
+        emit,
+        query: event.query,
+        categoryId: currentState.selectedCategoryId,
+      );
     }
   }
 
@@ -40,7 +44,11 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
     final currentState = state;
     if (currentState is DashboardLoaded) {
       emit(DashboardLoading());
-      await _fetchData(emit, query: currentState.searchQuery, categoryId: event.categoryId);
+      await _fetchData(
+        emit,
+        query: currentState.searchQuery,
+        categoryId: event.categoryId,
+      );
     }
   }
 
@@ -64,19 +72,25 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
       );
 
       final data = response.data as Map<String, dynamic>;
-      
+
       final eventsJson = data['eventos'] as List? ?? [];
       final categoriesJson = data['categorias'] as List? ?? [];
 
-      final events = eventsJson.map((e) => EventModel.fromJson(e as Map<String, dynamic>)).toList();
-      final categories = categoriesJson.map((e) => CategoryModel.fromJson(e as Map<String, dynamic>)).toList();
+      final events = eventsJson
+          .map((e) => EventModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+      final categories = categoriesJson
+          .map((e) => CategoryModel.fromJson(e as Map<String, dynamic>))
+          .toList();
 
-      emit(DashboardLoaded(
-        events: events,
-        categories: categories,
-        searchQuery: query,
-        selectedCategoryId: categoryId,
-      ));
+      emit(
+        DashboardLoaded(
+          events: events,
+          categories: categories,
+          searchQuery: query,
+          selectedCategoryId: categoryId,
+        ),
+      );
     } catch (e) {
       emit(DashboardFailure(error: e.toString().replaceAll('Exception: ', '')));
     }

@@ -10,7 +10,8 @@ class FakeAuthRepository implements AuthRepository {
   Future<String> login(String email, String password) async => 'fake_token';
 
   @override
-  Future<String> register(String nombre, String email, String password) async => 'fake_token';
+  Future<String> register(String nombre, String email, String password) async =>
+      'fake_token';
 
   @override
   Future<void> saveSession(String token, String email) async {}
@@ -39,22 +40,25 @@ void main() {
       authBloc.close();
     });
 
-    testWidgets('renders login screen layout and fields', (WidgetTester tester) async {
+    testWidgets('renders login screen layout and fields', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         RepositoryProvider<AuthRepository>.value(
           value: fakeAuthRepository,
           child: BlocProvider<AuthBloc>.value(
             value: authBloc,
-            child: const MaterialApp(
-              home: LoginScreen(),
-            ),
+            child: const MaterialApp(home: LoginScreen()),
           ),
         ),
       );
 
       // Verify that the title and subtitle are rendered
       expect(find.text('EventHub'), findsOneWidget);
-      expect(find.text('Inicia sesión en tu cuenta para continuar'), findsOneWidget);
+      expect(
+        find.text('Inicia sesión en tu cuenta para continuar'),
+        findsOneWidget,
+      );
 
       // Verify that text input fields are present
       expect(find.byType(TextFormField), findsNWidgets(2));
@@ -62,18 +66,21 @@ void main() {
       expect(find.text('Contraseña'), findsOneWidget);
 
       // Verify that the login button is present
-      expect(find.widgetWithText(ElevatedButton, 'Iniciar Sesión'), findsOneWidget);
+      expect(
+        find.widgetWithText(ElevatedButton, 'Iniciar Sesión'),
+        findsOneWidget,
+      );
     });
 
-    testWidgets('shows validation errors when fields are empty', (WidgetTester tester) async {
+    testWidgets('shows validation errors when fields are empty', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         RepositoryProvider<AuthRepository>.value(
           value: fakeAuthRepository,
           child: BlocProvider<AuthBloc>.value(
             value: authBloc,
-            child: const MaterialApp(
-              home: LoginScreen(),
-            ),
+            child: const MaterialApp(home: LoginScreen()),
           ),
         ),
       );
@@ -87,21 +94,24 @@ void main() {
       expect(find.text('La contraseña es obligatoria'), findsOneWidget);
     });
 
-    testWidgets('shows error for invalid email structure', (WidgetTester tester) async {
+    testWidgets('shows error for invalid email structure', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         RepositoryProvider<AuthRepository>.value(
           value: fakeAuthRepository,
           child: BlocProvider<AuthBloc>.value(
             value: authBloc,
-            child: const MaterialApp(
-              home: LoginScreen(),
-            ),
+            child: const MaterialApp(home: LoginScreen()),
           ),
         ),
       );
 
       // Enter invalid email and valid password
-      await tester.enterText(find.bySemanticsLabel('Correo Electrónico'), 'invalid-email');
+      await tester.enterText(
+        find.bySemanticsLabel('Correo Electrónico'),
+        'invalid-email',
+      );
       await tester.enterText(find.bySemanticsLabel('Contraseña'), '123456');
 
       // Click the login button

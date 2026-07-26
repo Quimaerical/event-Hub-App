@@ -2,62 +2,61 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // Brand color palette (Tailwind Slate / Sky Blue / Sea Green)
-  static const Color skyBlue = Color(
-    0xFF0EA5E9,
-  ); // Sky Blue (#0ea5e9) - Primary accent
-  static const Color seaGreen = Color(
-    0xFF0D9488,
-  ); // Sea Green (#0d9488) - Secondary / Success
-  static const Color darkBg = Color(
-    0xFF020617,
-  ); // Dark Slate (#020617) - Dark mode background
-  static const Color lightBg = Color(
-    0xFFF8FAFC,
-  ); // Light Slate (#f8fafc) - Light mode background
-  static const Color cardBg = Color(
-    0xFF0F172A,
-  ); // Surface Slate (#0f172a) - Dark card background
-  static const Color cardBgLight = Color(
-    0xFFFFFFFF,
-  ); // Surface White (#ffffff) - Light card background
-  static const Color textLight = Color(0xFFF8FAFC); // Light text for dark mode
-  static const Color textDark = Color(0xFF0F172A); // Dark text for light mode
-  static const Color textMuted = Color(
-    0xFF64748B,
-  ); // Muted Slate (#64748b) - Secondary text / subtle borders
-  static const Color borderDark = Color(0xFF1E293B); // Slate-800
-  static const Color borderLight = Color(0xFFE2E8F0); // Slate-200
+  // Brand color palette matching views/layouts/base.html (Tailwind Brand Violet & Slate-950)
+  static const Color brandViolet = Color(0xFF8B5CF6); // Brand 500 (#8b5cf6) - Primary Accent
+  static const Color brandDeep = Color(0xFF7C3AED);   // Brand 600 (#7c3aed) - Primary Buttons & Highlights
+  static const Color brandDark = Color(0xFF4C1D95);   // Brand 900 (#4c1d95) - Category Badge Backgrounds
+  static const Color brandLight = Color(0xFFEDE9FE);  // Brand 100 (#ede9fe) - Category Text
+  static const Color accentEmerald = Color(0xFF10B981); // Emerald 500 (#10b981) - Approved / Success
 
-  // Glassmorphic Decoration for Dark Mode
+  // Aliases for seamless compatibility across features
+  static const Color skyBlue = brandViolet;
+  static const Color seaGreen = accentEmerald;
+  
+  static const Color darkBg = Color(0xFF020617);      // Slate 950 (#020617) - Dark mode background
+  static const Color lightBg = Color(0xFFF8FAFC);     // Slate 50 (#f8fafc) - Light mode background
+  static const Color cardBg = Color(0xFF0F172A);      // Slate 900 (#0f172a) - Dark card background
+  static const Color cardBgLight = Color(0xFFFFFFFF); // White (#ffffff) - Light card background
+  
+  static const Color textLight = Color(0xFFF8FAFC);    // Light text for dark mode
+  static const Color textDark = Color(0xFF0F172A);     // Dark text for light mode
+  static const Color textMuted = Color(0xFF94A3B8);    // Slate 400 (#94a3b8) - Muted secondary text
+  
+  static const Color borderDark = Color(0xFF1E293B);   // Slate 800 (#1e293b)
+  static const Color borderLight = Color(0xFFE2E8F0);  // Slate 200 (#e2e8f0)
+
+  // Organic Glassmorphic Decoration for Dark Mode (24px rounded corners)
   static BoxDecoration get darkGlassDecoration => BoxDecoration(
-    color: cardBg.withValues(alpha: 0.7),
-    borderRadius: BorderRadius.circular(16),
-    border: Border.all(color: Colors.white.withValues(alpha: 0.1), width: 1),
-    boxShadow: [
-      BoxShadow(
-        color: Colors.black.withValues(alpha: 0.3),
-        blurRadius: 16,
-        spreadRadius: 0,
-        offset: const Offset(0, 8),
-      ),
-    ],
-  );
+        color: cardBg.withValues(alpha: 0.45),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.08),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: brandViolet.withValues(alpha: 0.08),
+            blurRadius: 20,
+            spreadRadius: 0,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      );
 
   // Glassmorphic Decoration for Light Mode
   static BoxDecoration get lightGlassDecoration => BoxDecoration(
-    color: cardBgLight,
-    borderRadius: BorderRadius.circular(16),
-    border: Border.all(color: borderLight, width: 1),
-    boxShadow: [
-      BoxShadow(
-        color: Colors.black.withValues(alpha: 0.05),
-        blurRadius: 12,
-        spreadRadius: 0,
-        offset: const Offset(0, 4),
-      ),
-    ],
-  );
+        color: cardBgLight,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: borderLight, width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 16,
+            spreadRadius: 0,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      );
 
   // Dark Theme Definition
   static ThemeData get darkTheme {
@@ -68,11 +67,11 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      primaryColor: skyBlue,
+      primaryColor: brandViolet,
       scaffoldBackgroundColor: darkBg,
       colorScheme: const ColorScheme.dark(
-        primary: skyBlue,
-        secondary: seaGreen,
+        primary: brandViolet,
+        secondary: brandDeep,
         surface: cardBg,
         onSurface: textLight,
         error: Colors.redAccent,
@@ -81,7 +80,8 @@ class AppTheme {
         headlineLarge: GoogleFonts.outfit(
           color: textLight,
           fontSize: 32,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w800,
+          letterSpacing: -0.5,
         ),
         titleLarge: GoogleFonts.outfit(
           color: textLight,
@@ -105,24 +105,24 @@ class AppTheme {
         iconTheme: const IconThemeData(color: textLight),
       ),
       cardTheme: CardThemeData(
-        color: cardBg.withValues(alpha: 0.7),
+        color: cardBg.withValues(alpha: 0.45),
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(24),
           side: BorderSide(
-            color: Colors.white.withValues(alpha: 0.1),
+            color: Colors.white.withValues(alpha: 0.08),
             width: 1,
           ),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: skyBlue,
+          backgroundColor: brandDeep,
           foregroundColor: Colors.white,
           elevation: 0,
-          minimumSize: const Size(double.infinity, 50),
+          minimumSize: const Size(double.infinity, 52),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
           ),
           textStyle: GoogleFonts.outfit(
             fontSize: 16,
@@ -136,23 +136,23 @@ class AppTheme {
         hintStyle: const TextStyle(color: textMuted, fontSize: 14),
         labelStyle: const TextStyle(color: textLight, fontSize: 14),
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
+          horizontal: 18,
           vertical: 16,
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: borderDark),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: borderDark),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: skyBlue, width: 1.5),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: brandViolet, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: Colors.redAccent),
         ),
       ),
@@ -168,11 +168,11 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-      primaryColor: skyBlue,
+      primaryColor: brandViolet,
       scaffoldBackgroundColor: lightBg,
       colorScheme: const ColorScheme.light(
-        primary: skyBlue,
-        secondary: seaGreen,
+        primary: brandViolet,
+        secondary: brandDeep,
         surface: cardBgLight,
         onSurface: textDark,
         error: Colors.redAccent,
@@ -181,7 +181,7 @@ class AppTheme {
         headlineLarge: GoogleFonts.outfit(
           color: textDark,
           fontSize: 32,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w800,
         ),
         titleLarge: GoogleFonts.outfit(
           color: textDark,
@@ -209,18 +209,18 @@ class AppTheme {
         elevation: 2,
         shadowColor: Colors.black.withValues(alpha: 0.05),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(24),
           side: const BorderSide(color: borderLight, width: 1),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: skyBlue,
+          backgroundColor: brandDeep,
           foregroundColor: Colors.white,
           elevation: 0,
-          minimumSize: const Size(double.infinity, 50),
+          minimumSize: const Size(double.infinity, 52),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
           ),
           textStyle: GoogleFonts.outfit(
             fontSize: 16,
@@ -234,23 +234,23 @@ class AppTheme {
         hintStyle: const TextStyle(color: textMuted, fontSize: 14),
         labelStyle: const TextStyle(color: textDark, fontSize: 14),
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
+          horizontal: 18,
           vertical: 16,
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: borderLight),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: borderLight),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: skyBlue, width: 1.5),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: brandViolet, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: Colors.redAccent),
         ),
       ),

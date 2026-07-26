@@ -34,7 +34,7 @@ class CategoryFilterList extends StatelessWidget {
             child: ChoiceChip(
               label: Text(name),
               selected: isSelected,
-              selectedColor: AppTheme.skyBlue,
+              selectedColor: AppTheme.brandDeep,
               labelStyle: TextStyle(
                 color: isSelected ? Colors.white : AppTheme.textMuted,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
@@ -44,7 +44,9 @@ class CategoryFilterList extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
                 side: BorderSide(
-                  color: isSelected ? AppTheme.skyBlue : AppTheme.borderDark,
+                  color: isSelected
+                      ? AppTheme.brandViolet
+                      : AppTheme.borderDark,
                 ),
               ),
               onSelected: (_) => onCategorySelected(id),

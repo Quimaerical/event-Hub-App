@@ -47,8 +47,8 @@ class _TablonScreenState extends State<TablonScreen> {
         appBar: AppBar(
           title: const Text('Mi Tablón de Eventos'),
           bottom: const TabBar(
-            indicatorColor: AppTheme.skyBlue,
-            labelColor: AppTheme.skyBlue,
+            indicatorColor: AppTheme.brandViolet,
+            labelColor: AppTheme.brandViolet,
             unselectedLabelColor: AppTheme.textMuted,
             tabs: [
               Tab(icon: Icon(Icons.event_available), text: 'Asistiré'),

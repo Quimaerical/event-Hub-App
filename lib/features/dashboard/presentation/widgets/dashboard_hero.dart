@@ -12,24 +12,24 @@ class DashboardHero extends StatelessWidget {
         ShaderMask(
           shaderCallback: (bounds) {
             return const LinearGradient(
-              colors: [AppTheme.skyBlue, AppTheme.seaGreen],
+              colors: [Colors.white, AppTheme.brandViolet],
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
             ).createShader(bounds);
           },
           child: const Text(
-            'Event Hub',
+            'Descubre Eventos del Hub',
             style: TextStyle(
-              fontSize: 34,
+              fontSize: 32,
               fontWeight: FontWeight.w800,
               color: Colors.white,
-              letterSpacing: 1.2,
+              letterSpacing: -0.5,
             ),
           ),
         ),
         const SizedBox(height: 6),
         const Text(
-          'Descubre y participa en los mejores eventos comunitarios',
+          'Explora conferencias de tecnología, conciertos en vivo, talleres y asambleas organizadas por la comunidad.',
           style: TextStyle(
             fontSize: 14,
             color: AppTheme.textMuted,

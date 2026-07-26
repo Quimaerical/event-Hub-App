@@ -378,7 +378,7 @@ class _HeaderGradientFallback extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [AppTheme.skyBlue, AppTheme.seaGreen],
+          colors: [AppTheme.brandDeep, AppTheme.accentEmerald],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),

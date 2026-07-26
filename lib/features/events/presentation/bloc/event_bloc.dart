@@ -22,21 +22,23 @@ class EventBloc extends Bloc<EventEvent, EventState> {
   ) async {
     emit(EventLoading());
     try {
-      final isoDate = event.fecha.toUtc().toIso8601String();
-      final isoDateFin = event.fecha
-          .add(const Duration(hours: 2))
-          .toUtc()
-          .toIso8601String();
+      final f = event.fecha;
+      final startDateStr =
+          '${f.year}-${f.month.toString().padLeft(2, '0')}-${f.day.toString().padLeft(2, '0')}T${f.hour.toString().padLeft(2, '0')}:${f.minute.toString().padLeft(2, '0')}';
+
+      final end = event.fechaFin ?? event.fecha.add(const Duration(hours: 2));
+      final endDateStr =
+          '${end.year}-${end.month.toString().padLeft(2, '0')}-${end.day.toString().padLeft(2, '0')}T${end.hour.toString().padLeft(2, '0')}:${end.minute.toString().padLeft(2, '0')}';
 
       final response = await apiClient.dio.post(
         AppConstants.createEvent,
         data: {
           'titulo': event.titulo,
           'descripcion': event.descripcion,
-          'espacio_id': 1,
-          'fecha_inicio': isoDate,
-          'fecha_fin': isoDateFin,
-          'capacidad_maxima': 50,
+          'espacio_id': event.espacioId,
+          'fecha_inicio': startDateStr,
+          'fecha_fin': endDateStr,
+          'capacidad_maxima': event.capacidadMaxima,
           'categorias': event.categoryIds,
         },
       );

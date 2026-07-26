@@ -8,14 +8,20 @@ abstract class EventEvent {}
 class CreateEventRequested extends EventEvent {
   final String titulo;
   final String descripcion;
+  final int espacioId;
   final DateTime fecha;
+  final DateTime? fechaFin;
+  final int capacidadMaxima;
   final String ubicacion;
   final List<int> categoryIds;
 
   CreateEventRequested({
     required this.titulo,
     required this.descripcion,
+    required this.espacioId,
     required this.fecha,
+    this.fechaFin,
+    required this.capacidadMaxima,
     required this.ubicacion,
     required this.categoryIds,
   });

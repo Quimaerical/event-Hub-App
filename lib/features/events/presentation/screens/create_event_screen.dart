@@ -9,7 +9,6 @@ import '../bloc/event_bloc.dart';
 import '../bloc/event_event.dart';
 import '../bloc/event_state.dart';
 
-/// Alias for conventional naming
 typedef CreateEditView = CreateEventScreen;
 
 class CreateEventScreen extends StatefulWidget {
@@ -30,20 +29,17 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   final _imagenUrlController = TextEditingController();
 
   DateTime? _selectedDateTime;
+  DateTime? _selectedEndDateTime;
+
   List<CategoryModel> _categoriesList = [];
   final List<int> _selectedCategoryIds = [];
 
-  bool _isLoadingCategories = true;
-  String? _categoriesError;
-  bool _isUploadingImage = false;
+  List<Map<String, dynamic>> _espaciosList = [];
+  int? _selectedEspacioId;
 
-  final List<String> _locationPresets = const [
-    'Auditorio Principal - Piso 1',
-    'Sala de Conferencias B',
-    'Laboratorio de Innovación Tech',
-    'Espacio Abierto / Patio Central',
-    'Enlace Virtual / Zoom Meeting',
-  ];
+  bool _isLoadingMetadata = true;
+  String? _metadataError;
+  bool _isUploadingImage = false;
 
   @override
   void initState() {
@@ -56,9 +52,10 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       _cupoController.text = e.cupoMaximo.toString();
       _imagenUrlController.text = e.imagenUrl ?? '';
       _selectedDateTime = e.fecha;
+      _selectedEndDateTime = e.fechaFin;
       _selectedCategoryIds.addAll(e.categorias.map((c) => c.id));
     }
-    _loadCategories();
+    _loadMetadata();
   }
 
   @override
@@ -71,27 +68,60 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     super.dispose();
   }
 
-  Future<void> _loadCategories() async {
+  Future<void> _loadMetadata() async {
+    setState(() => _isLoadingMetadata = true);
     try {
       final apiClient = context.read<ApiClient>();
-      final response = await apiClient.dio.get('/eventos/crear');
 
-      final data = response.data as Map<String, dynamic>;
-      final catsJson = data['categorias'] as List? ?? [];
+      // Fetch categories & espacios concurrently
+      final catsFuture = apiClient.get('/categorias');
+      final espaciosFuture = apiClient.get('/espacios');
+
+      final results = await Future.wait([catsFuture, espaciosFuture]);
+
+      final catsRes = results[0];
+      final espaciosRes = results[1];
+
+      List<CategoryModel> loadedCats = [];
+      if (catsRes is Map && catsRes['categorias'] is List) {
+        loadedCats = (catsRes['categorias'] as List)
+            .map((e) => CategoryModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+      } else if (catsRes is List) {
+        loadedCats = catsRes
+            .map((e) => CategoryModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+
+      List<Map<String, dynamic>> loadedEspacios = [];
+      if (espaciosRes is Map && espaciosRes['espacios'] is List) {
+        loadedEspacios = List<Map<String, dynamic>>.from(
+          espaciosRes['espacios'] as List,
+        );
+      } else if (espaciosRes is List) {
+        loadedEspacios = List<Map<String, dynamic>>.from(espaciosRes);
+      }
 
       if (!mounted) return;
 
       setState(() {
-        _categoriesList = catsJson
-            .map((e) => CategoryModel.fromJson(e as Map<String, dynamic>))
-            .toList();
-        _isLoadingCategories = false;
+        _categoriesList = loadedCats;
+        _espaciosList = loadedEspacios;
+        if (_espaciosList.isNotEmpty && _selectedEspacioId == null) {
+          _selectedEspacioId = _espaciosList.first['id'] as int?;
+          if (_ubicacionController.text.isEmpty) {
+            _ubicacionController.text =
+                _espaciosList.first['nombre']?.toString() ?? '';
+          }
+        }
+        _isLoadingMetadata = false;
       });
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _categoriesError = 'No se pudieron cargar las categorías';
-        _isLoadingCategories = false;
+        _metadataError =
+            'No se pudieron cargar los espacios y categorías del servidor.';
+        _isLoadingMetadata = false;
       });
     }
   }
@@ -124,16 +154,13 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
         time.hour,
         time.minute,
       );
+      _selectedEndDateTime = _selectedDateTime!.add(const Duration(hours: 2));
     });
   }
 
   void _simulateImagePick() async {
-    setState(() {
-      _isUploadingImage = true;
-    });
-
+    setState(() => _isUploadingImage = true);
     await Future.delayed(const Duration(seconds: 1));
-
     if (!mounted) return;
 
     setState(() {
@@ -192,12 +219,17 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       return;
     }
 
+    final capacity = int.tryParse(_cupoController.text.trim()) ?? 50;
+
     if (_formKey.currentState?.validate() ?? false) {
       context.read<EventBloc>().add(
         CreateEventRequested(
           titulo: _tituloController.text.trim(),
           descripcion: _descripcionController.text.trim(),
+          espacioId: _selectedEspacioId ?? 1,
           fecha: _selectedDateTime!,
+          fechaFin: _selectedEndDateTime,
+          capacidadMaxima: capacity,
           ubicacion: _ubicacionController.text.trim(),
           categoryIds: _selectedCategoryIds,
         ),
@@ -244,7 +276,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 600),
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
+              padding: const EdgeInsets.all(20.0),
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -256,7 +288,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                       isUploading: _isUploadingImage,
                       onPickImage: _simulateImagePick,
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 20),
 
                     // Title Field
                     const _FormInputLabel(label: 'TÍTULO DEL EVENTO'),
@@ -274,94 +306,113 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 18),
 
-                    // Location Dropdown & Input
+                    // Dynamic Location / Espacio Dropdown & Custom Input
                     const _FormInputLabel(label: 'ESPACIO / UBICACIÓN'),
                     const SizedBox(height: 6),
-                    DropdownButtonFormField<String>(
-                      initialValue:
-                          _locationPresets.contains(_ubicacionController.text)
-                          ? _ubicacionController.text
-                          : null,
-                      items: _locationPresets.map((preset) {
-                        return DropdownMenuItem(
-                          value: preset,
-                          child: Text(
-                            preset,
-                            style: const TextStyle(fontSize: 14),
-                          ),
-                        );
-                      }).toList(),
-                      onChanged: (val) {
-                        if (val != null) {
-                          setState(() {
-                            _ubicacionController.text = val;
-                          });
-                        }
-                      },
-                      decoration: const InputDecoration(
-                        hintText: 'Seleccione un espacio o escriba abajo...',
-                        prefixIcon: Icon(
-                          Icons.location_on_outlined,
-                          color: AppTheme.textMuted,
-                        ),
-                      ),
-                    ),
+                    _isLoadingMetadata
+                        ? const LinearProgressIndicator(color: AppTheme.skyBlue)
+                        : _espaciosList.isNotEmpty
+                        ? DropdownButtonFormField<int>(
+                            initialValue: _selectedEspacioId,
+                            items: _espaciosList.map((espacio) {
+                              final id = espacio['id'] as int;
+                              final name =
+                                  espacio['nombre']?.toString() ??
+                                  'Espacio $id';
+                              final tipo = espacio['tipo']?.toString() ?? '';
+                              return DropdownMenuItem<int>(
+                                value: id,
+                                child: Text(
+                                  tipo.isNotEmpty ? '$name ($tipo)' : name,
+                                  style: const TextStyle(fontSize: 13),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (val) {
+                              if (val != null) {
+                                setState(() {
+                                  _selectedEspacioId = val;
+                                  final match = _espaciosList.firstWhere(
+                                    (e) => e['id'] == val,
+                                    orElse: () => {},
+                                  );
+                                  if (match.isNotEmpty) {
+                                    _ubicacionController.text =
+                                        match['nombre']?.toString() ?? '';
+                                  }
+                                });
+                              }
+                            },
+                            decoration: const InputDecoration(
+                              hintText: 'Seleccione un espacio del campus...',
+                              prefixIcon: Icon(
+                                Icons.location_on_outlined,
+                                color: AppTheme.textMuted,
+                              ),
+                            ),
+                          )
+                        : const SizedBox.shrink(),
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _ubicacionController,
                       validator: (val) =>
                           AppValidators.validateRequired(val, 'La ubicación'),
                       decoration: const InputDecoration(
-                        hintText: 'O ingrese una ubicación personalizada...',
+                        hintText: 'Ubicación o detalles específicos...',
                         prefixIcon: Icon(
                           Icons.edit_location_alt_outlined,
                           color: AppTheme.textMuted,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 18),
 
-                    // Date & Time Picker
+                    // Date & Time Picker (Overflow Fixed with Flexible)
                     const _FormInputLabel(label: 'FECHA Y HORA DE INICIO'),
                     const SizedBox(height: 6),
                     InkWell(
                       onTap: _pickDateTime,
                       borderRadius: BorderRadius.circular(12),
                       child: Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           color: AppTheme.cardBg,
                           border: Border.all(color: AppTheme.borderDark),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              _selectedDateTime == null
-                                  ? 'Seleccionar Fecha y Hora'
-                                  : 'Fecha: ${_selectedDateTime!.day}/${_selectedDateTime!.month}/${_selectedDateTime!.year}  ${_selectedDateTime!.hour.toString().padLeft(2, '0')}:${_selectedDateTime!.minute.toString().padLeft(2, '0')}',
-                              style: TextStyle(
-                                color: _selectedDateTime == null
-                                    ? AppTheme.textMuted
-                                    : AppTheme.textLight,
-                                fontSize: 14,
-                                fontWeight: _selectedDateTime != null
-                                    ? FontWeight.w600
-                                    : FontWeight.normal,
-                              ),
-                            ),
                             const Icon(
                               Icons.calendar_today,
                               color: AppTheme.skyBlue,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 12),
+                            Flexible(
+                              child: Text(
+                                _selectedDateTime == null
+                                    ? 'Seleccionar Fecha y Hora'
+                                    : 'Fecha: ${_selectedDateTime!.day}/${_selectedDateTime!.month}/${_selectedDateTime!.year}  ${_selectedDateTime!.hour.toString().padLeft(2, '0')}:${_selectedDateTime!.minute.toString().padLeft(2, '0')}',
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: _selectedDateTime == null
+                                      ? AppTheme.textMuted
+                                      : AppTheme.textLight,
+                                  fontSize: 13,
+                                  fontWeight: _selectedDateTime != null
+                                      ? FontWeight.w600
+                                      : FontWeight.normal,
+                                ),
+                              ),
                             ),
                           ],
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 18),
 
                     // Capacity Limit
                     const _FormInputLabel(label: 'CAPACIDAD MÁXIMA (CUPOS)'),
@@ -387,21 +438,24 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 20),
 
-                    // Multiple Categories FilterChips
+                    // Dynamic Categories FilterChips
                     const _FormInputLabel(label: 'CATEGORÍAS DE EVENTO'),
                     const SizedBox(height: 8),
-                    _isLoadingCategories
+                    _isLoadingMetadata
                         ? const Center(
                             child: CircularProgressIndicator(
                               color: AppTheme.skyBlue,
                             ),
                           )
-                        : _categoriesError != null
+                        : _metadataError != null
                         ? Text(
-                            _categoriesError!,
-                            style: const TextStyle(color: Colors.redAccent),
+                            _metadataError!,
+                            style: const TextStyle(
+                              color: Colors.redAccent,
+                              fontSize: 12,
+                            ),
                           )
                         : Wrap(
                             spacing: 8,
@@ -446,20 +500,20 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                           ),
                     const SizedBox(height: 24),
 
-                    // Description Label with Gemini IA Spark Button
+                    // Responsive Description Header (Overflow Fixed)
                     _AiDescriptionHeader(onGenerateAI: _generateAIDescription),
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _descripcionController,
                       validator: (val) =>
                           AppValidators.validateRequired(val, 'La descripción'),
-                      maxLines: 5,
+                      maxLines: 4,
                       decoration: const InputDecoration(
                         hintText:
                             'Describe la agenda, ponentes y detalles del evento...',
                       ),
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 28),
 
                     // Submit Button
                     BlocBuilder<EventBloc, EventState>(
@@ -526,7 +580,7 @@ class _ImagePickerField extends StatelessWidget {
     return GestureDetector(
       onTap: isUploading ? null : onPickImage,
       child: Container(
-        height: 160,
+        height: 150,
         decoration: BoxDecoration(
           color: AppTheme.cardBg,
           borderRadius: BorderRadius.circular(16),
@@ -548,14 +602,14 @@ class _ImagePickerField extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.add_a_photo_outlined,
-                    size: 36,
+                    size: 32,
                     color: AppTheme.skyBlue,
                   ),
                   SizedBox(height: 8),
                   Text(
                     'Seleccionar Imagen de Portada',
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 12,
                       color: AppTheme.textMuted,
                       fontWeight: FontWeight.w600,
                     ),
@@ -587,9 +641,9 @@ class _AiDescriptionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const _FormInputLabel(label: 'DESCRIPCIÓN DEL EVENTO'),
+        const Expanded(child: _FormInputLabel(label: 'DESCRIPCIÓN DEL EVENTO')),
+        const SizedBox(width: 8),
         BlocBuilder<EventBloc, EventState>(
           builder: (context, state) {
             final isGenerating = state is EventLoading;
@@ -597,8 +651,8 @@ class _AiDescriptionHeader extends StatelessWidget {
               onPressed: isGenerating ? null : onGenerateAI,
               icon: isGenerating
                   ? const SizedBox(
-                      width: 14,
-                      height: 14,
+                      width: 12,
+                      height: 12,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
                         color: AppTheme.skyBlue,
@@ -606,23 +660,20 @@ class _AiDescriptionHeader extends StatelessWidget {
                     )
                   : const Icon(
                       Icons.auto_awesome,
-                      size: 16,
+                      size: 14,
                       color: AppTheme.skyBlue,
                     ),
               label: Text(
                 isGenerating ? 'Generando...' : 'Sugerir con IA',
                 style: const TextStyle(
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: FontWeight.bold,
                   color: AppTheme.skyBlue,
                 ),
               ),
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: AppTheme.skyBlue),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),

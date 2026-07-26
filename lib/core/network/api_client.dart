@@ -49,6 +49,53 @@ class ApiClient {
 
   Dio get dio => _dio;
 
+  Future<dynamic> get(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    final response = await _dio.get(path, queryParameters: queryParameters);
+    return response.data;
+  }
+
+  Future<dynamic> post(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    final response = await _dio.post(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+    );
+    return response.data;
+  }
+
+  Future<dynamic> put(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    final response = await _dio.put(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+    );
+    return response.data;
+  }
+
+  Future<dynamic> delete(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    final response = await _dio.delete(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+    );
+    return response.data;
+  }
+
   ApiException _mapDioException(DioException error) {
     final statusCode = error.response?.statusCode;
     final data = error.response?.data;

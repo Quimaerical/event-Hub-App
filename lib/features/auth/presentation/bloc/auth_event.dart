@@ -27,5 +27,11 @@ class RegisterRequested extends AuthEvent {
   });
 }
 
+// Trigger Google OAuth Login Flow
+class GoogleOAuthRequested extends AuthEvent {}
+
+// Trigger GitHub OAuth Login Flow
+class GitHubOAuthRequested extends AuthEvent {}
+
 // Delete session tokens and logout
 class LogoutRequested extends AuthEvent {}

@@ -257,6 +257,7 @@ class _RegisterOAuthSection extends StatelessWidget {
                       content: Text('Redirigiendo a Google OAuth...'),
                     ),
                   );
+                  context.read<AuthBloc>().add(GoogleOAuthRequested());
                 },
                 icon: const Icon(
                   Icons.g_mobiledata,
@@ -285,6 +286,7 @@ class _RegisterOAuthSection extends StatelessWidget {
                       content: Text('Redirigiendo a GitHub OAuth...'),
                     ),
                   );
+                  context.read<AuthBloc>().add(GitHubOAuthRequested());
                 },
                 icon: const Icon(Icons.code, color: AppTheme.skyBlue, size: 18),
                 label: const Text(

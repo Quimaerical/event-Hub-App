@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/app_drawer.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../../dashboard/presentation/bloc/dashboard_bloc.dart';
@@ -44,6 +45,7 @@ class _TablonScreenState extends State<TablonScreen> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
+        drawer: const AppDrawer(currentRoute: 'tablon'),
         appBar: AppBar(
           title: const Text('Mi Tablón de Eventos'),
           bottom: const TabBar(

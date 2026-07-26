@@ -14,6 +14,8 @@ import '../widgets/dashboard_hero.dart';
 import '../widgets/dashboard_search_bar.dart';
 import '../widgets/event_card.dart';
 
+import '../../../../core/widgets/app_drawer.dart';
+
 /// Alias for conventional naming
 typedef DashboardView = DashboardScreen;
 
@@ -59,6 +61,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ],
       child: Scaffold(
+        drawer: const AppDrawer(currentRoute: 'dashboard'),
         appBar: AppBar(
           title: const Text('EventHub'),
           actions: [

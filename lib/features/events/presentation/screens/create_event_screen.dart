@@ -167,8 +167,8 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     }
 
     context.read<EventBloc>().add(
-          SuggestDescriptionRequested(titulo: title, ubicacion: location),
-        );
+      SuggestDescriptionRequested(titulo: title, ubicacion: location),
+    );
   }
 
   void _submit() {
@@ -194,14 +194,14 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
 
     if (_formKey.currentState?.validate() ?? false) {
       context.read<EventBloc>().add(
-            CreateEventRequested(
-              titulo: _tituloController.text.trim(),
-              descripcion: _descripcionController.text.trim(),
-              fecha: _selectedDateTime!,
-              ubicacion: _ubicacionController.text.trim(),
-              categoryIds: _selectedCategoryIds,
-            ),
-          );
+        CreateEventRequested(
+          titulo: _tituloController.text.trim(),
+          descripcion: _descripcionController.text.trim(),
+          fecha: _selectedDateTime!,
+          ubicacion: _ubicacionController.text.trim(),
+          categoryIds: _selectedCategoryIds,
+        ),
+      );
     }
   }
 
@@ -210,9 +210,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     final isEditing = widget.eventToEdit != null;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isEditing ? 'Editar Evento' : 'Crear Evento'),
-      ),
+      appBar: AppBar(title: Text(isEditing ? 'Editar Evento' : 'Crear Evento')),
       body: BlocListener<EventBloc, EventState>(
         listener: (context, state) {
           if (state is EventSuccess) {
@@ -268,8 +266,12 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                       validator: (val) =>
                           AppValidators.validateRequired(val, 'El título'),
                       decoration: const InputDecoration(
-                        hintText: 'Ej. Hackathon Anual de Inteligencia Artificial',
-                        prefixIcon: Icon(Icons.event_note, color: AppTheme.textMuted),
+                        hintText:
+                            'Ej. Hackathon Anual de Inteligencia Artificial',
+                        prefixIcon: Icon(
+                          Icons.event_note,
+                          color: AppTheme.textMuted,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -278,13 +280,17 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     const _FormInputLabel(label: 'ESPACIO / UBICACIÓN'),
                     const SizedBox(height: 6),
                     DropdownButtonFormField<String>(
-                      initialValue: _locationPresets.contains(_ubicacionController.text)
+                      initialValue:
+                          _locationPresets.contains(_ubicacionController.text)
                           ? _ubicacionController.text
                           : null,
                       items: _locationPresets.map((preset) {
                         return DropdownMenuItem(
                           value: preset,
-                          child: Text(preset, style: const TextStyle(fontSize: 14)),
+                          child: Text(
+                            preset,
+                            style: const TextStyle(fontSize: 14),
+                          ),
                         );
                       }).toList(),
                       onChanged: (val) {
@@ -296,7 +302,10 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                       },
                       decoration: const InputDecoration(
                         hintText: 'Seleccione un espacio o escriba abajo...',
-                        prefixIcon: Icon(Icons.location_on_outlined, color: AppTheme.textMuted),
+                        prefixIcon: Icon(
+                          Icons.location_on_outlined,
+                          color: AppTheme.textMuted,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -306,7 +315,10 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                           AppValidators.validateRequired(val, 'La ubicación'),
                       decoration: const InputDecoration(
                         hintText: 'O ingrese una ubicación personalizada...',
-                        prefixIcon: Icon(Icons.edit_location_alt_outlined, color: AppTheme.textMuted),
+                        prefixIcon: Icon(
+                          Icons.edit_location_alt_outlined,
+                          color: AppTheme.textMuted,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -336,10 +348,15 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                                     ? AppTheme.textMuted
                                     : AppTheme.textLight,
                                 fontSize: 14,
-                                fontWeight: _selectedDateTime != null ? FontWeight.w600 : FontWeight.normal,
+                                fontWeight: _selectedDateTime != null
+                                    ? FontWeight.w600
+                                    : FontWeight.normal,
                               ),
                             ),
-                            const Icon(Icons.calendar_today, color: AppTheme.skyBlue),
+                            const Icon(
+                              Icons.calendar_today,
+                              color: AppTheme.skyBlue,
+                            ),
                           ],
                         ),
                       ),
@@ -353,14 +370,21 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                       controller: _cupoController,
                       keyboardType: TextInputType.number,
                       validator: (val) {
-                        if (val == null || val.isEmpty) return 'Ingrese la capacidad máxima';
+                        if (val == null || val.isEmpty) {
+                          return 'Ingrese la capacidad máxima';
+                        }
                         final num = int.tryParse(val);
-                        if (num == null || num <= 0) return 'La capacidad debe ser un número mayor a 0';
+                        if (num == null || num <= 0) {
+                          return 'La capacidad debe ser un número mayor a 0';
+                        }
                         return null;
                       },
                       decoration: const InputDecoration(
                         hintText: 'Ej. 50',
-                        prefixIcon: Icon(Icons.people_outline, color: AppTheme.textMuted),
+                        prefixIcon: Icon(
+                          Icons.people_outline,
+                          color: AppTheme.textMuted,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -370,46 +394,56 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     const SizedBox(height: 8),
                     _isLoadingCategories
                         ? const Center(
-                            child: CircularProgressIndicator(color: AppTheme.skyBlue),
+                            child: CircularProgressIndicator(
+                              color: AppTheme.skyBlue,
+                            ),
                           )
                         : _categoriesError != null
-                            ? Text(
-                                _categoriesError!,
-                                style: const TextStyle(color: Colors.redAccent),
-                              )
-                            : Wrap(
-                                spacing: 8,
-                                runSpacing: 8,
-                                children: _categoriesList.map((category) {
-                                  final isSelected = _selectedCategoryIds.contains(category.id);
-                                  return FilterChip(
-                                    label: Text(category.nombre),
-                                    selected: isSelected,
-                                    selectedColor: AppTheme.skyBlue,
-                                    labelStyle: TextStyle(
-                                      color: isSelected ? Colors.white : AppTheme.textMuted,
-                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                      fontSize: 12,
-                                    ),
-                                    backgroundColor: AppTheme.cardBg,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                      side: BorderSide(
-                                        color: isSelected ? AppTheme.skyBlue : AppTheme.borderDark,
-                                      ),
-                                    ),
-                                    onSelected: (selected) {
-                                      setState(() {
-                                        if (selected) {
-                                          _selectedCategoryIds.add(category.id);
-                                        } else {
-                                          _selectedCategoryIds.remove(category.id);
-                                        }
-                                      });
-                                    },
-                                  );
-                                }).toList(),
-                              ),
+                        ? Text(
+                            _categoriesError!,
+                            style: const TextStyle(color: Colors.redAccent),
+                          )
+                        : Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: _categoriesList.map((category) {
+                              final isSelected = _selectedCategoryIds.contains(
+                                category.id,
+                              );
+                              return FilterChip(
+                                label: Text(category.nombre),
+                                selected: isSelected,
+                                selectedColor: AppTheme.skyBlue,
+                                labelStyle: TextStyle(
+                                  color: isSelected
+                                      ? Colors.white
+                                      : AppTheme.textMuted,
+                                  fontWeight: isSelected
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
+                                  fontSize: 12,
+                                ),
+                                backgroundColor: AppTheme.cardBg,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  side: BorderSide(
+                                    color: isSelected
+                                        ? AppTheme.skyBlue
+                                        : AppTheme.borderDark,
+                                  ),
+                                ),
+                                onSelected: (selected) {
+                                  setState(() {
+                                    if (selected) {
+                                      _selectedCategoryIds.add(category.id);
+                                    } else {
+                                      _selectedCategoryIds.remove(category.id);
+                                    }
+                                  });
+                                },
+                              );
+                            }).toList(),
+                          ),
                     const SizedBox(height: 24),
 
                     // Description Label with Gemini IA Spark Button
@@ -417,10 +451,12 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _descripcionController,
-                      validator: (val) => AppValidators.validateRequired(val, 'La descripción'),
+                      validator: (val) =>
+                          AppValidators.validateRequired(val, 'La descripción'),
                       maxLines: 5,
                       decoration: const InputDecoration(
-                        hintText: 'Describe la agenda, ponentes y detalles del evento...',
+                        hintText:
+                            'Describe la agenda, ponentes y detalles del evento...',
                       ),
                     ),
                     const SizedBox(height: 32),
@@ -431,12 +467,16 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                         final isLoading = state is EventLoading;
                         if (isLoading) {
                           return const Center(
-                            child: CircularProgressIndicator(color: AppTheme.skyBlue),
+                            child: CircularProgressIndicator(
+                              color: AppTheme.skyBlue,
+                            ),
                           );
                         }
                         return ElevatedButton(
                           onPressed: _submit,
-                          child: Text(isEditing ? 'Guardar Cambios' : 'Publicar Evento'),
+                          child: Text(
+                            isEditing ? 'Guardar Cambios' : 'Publicar Evento',
+                          ),
                         );
                       },
                     ),
@@ -503,29 +543,37 @@ class _ImagePickerField extends StatelessWidget {
                 child: CircularProgressIndicator(color: AppTheme.skyBlue),
               )
             : imageUrl.isEmpty
-                ? const Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.add_a_photo_outlined, size: 36, color: AppTheme.skyBlue),
-                      SizedBox(height: 8),
-                      Text(
-                        'Seleccionar Imagen de Portada',
-                        style: TextStyle(fontSize: 13, color: AppTheme.textMuted, fontWeight: FontWeight.w600),
-                      ),
-                    ],
-                  )
-                : Align(
-                    alignment: Alignment.topRight,
-                    child: Container(
-                      margin: const EdgeInsets.all(10),
-                      padding: const EdgeInsets.all(6),
-                      decoration: const BoxDecoration(
-                        color: Colors.black54,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.edit, size: 16, color: Colors.white),
+            ? const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.add_a_photo_outlined,
+                    size: 36,
+                    color: AppTheme.skyBlue,
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Seleccionar Imagen de Portada',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: AppTheme.textMuted,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
+                ],
+              )
+            : Align(
+                alignment: Alignment.topRight,
+                child: Container(
+                  margin: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(6),
+                  decoration: const BoxDecoration(
+                    color: Colors.black54,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.edit, size: 16, color: Colors.white),
+                ),
+              ),
       ),
     );
   }
@@ -551,17 +599,33 @@ class _AiDescriptionHeader extends StatelessWidget {
                   ? const SizedBox(
                       width: 14,
                       height: 14,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.skyBlue),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppTheme.skyBlue,
+                      ),
                     )
-                  : const Icon(Icons.auto_awesome, size: 16, color: AppTheme.skyBlue),
+                  : const Icon(
+                      Icons.auto_awesome,
+                      size: 16,
+                      color: AppTheme.skyBlue,
+                    ),
               label: Text(
                 isGenerating ? 'Generando...' : 'Sugerir con IA',
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.skyBlue),
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.skyBlue,
+                ),
               ),
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: AppTheme.skyBlue),
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
               ),
             );
           },

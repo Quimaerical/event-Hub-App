@@ -280,13 +280,14 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                             isAdminOrApprover: isAdminOrApprover,
                             onEdit: () async {
                               final messenger = ScaffoldMessenger.of(context);
-                              final updated = await Navigator.of(context).push<bool>(
-                                MaterialPageRoute(
-                                  builder: (_) => CreateEventScreen(
-                                    eventToEdit: _currentEvent,
-                                  ),
-                                ),
-                              );
+                              final updated = await Navigator.of(context)
+                                  .push<bool>(
+                                    MaterialPageRoute(
+                                      builder: (_) => CreateEventScreen(
+                                        eventToEdit: _currentEvent,
+                                      ),
+                                    ),
+                                  );
                               if (updated == true && mounted) {
                                 messenger.showSnackBar(
                                   const SnackBar(

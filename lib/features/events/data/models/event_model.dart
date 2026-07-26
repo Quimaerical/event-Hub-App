@@ -12,9 +12,9 @@ class EventModel {
   final int creadorId;
   final String creadorNombre;
   final List<CategoryModel> categorias;
-  final int cupoMaximo; // local capacity limit
+  final int cupoMaximo;
   final int inscritosCount;
-  final String estado; // 'Aprobado', 'En revisión', 'Cancelado'
+  final String estado;
   final DateTime createdAt;
   final String? imagenUrl;
 
@@ -28,7 +28,7 @@ class EventModel {
     required this.creadorId,
     required this.creadorNombre,
     required this.categorias,
-    this.cupoMaximo = 50, // default limit
+    this.cupoMaximo = 50,
     this.inscritosCount = 0,
     this.estado = 'Aprobado',
     required this.createdAt,
@@ -46,7 +46,10 @@ class EventModel {
         : [];
 
     DateTime parsedFecha = DateTime.now();
-    if (json['fecha'] != null) {
+    if (json['fecha_inicio'] != null) {
+      parsedFecha =
+          DateTime.tryParse(json['fecha_inicio'].toString()) ?? DateTime.now();
+    } else if (json['fecha'] != null) {
       parsedFecha =
           DateTime.tryParse(json['fecha'].toString()) ?? DateTime.now();
     }
@@ -57,9 +60,35 @@ class EventModel {
     }
 
     DateTime parsedCreated = DateTime.now();
-    if (json['created_at'] != null) {
+    if (json['fecha_creacion'] != null) {
+      parsedCreated =
+          DateTime.tryParse(json['fecha_creacion'].toString()) ??
+          DateTime.now();
+    } else if (json['created_at'] != null) {
       parsedCreated =
           DateTime.tryParse(json['created_at'].toString()) ?? DateTime.now();
+    }
+
+    final rawLocation =
+        json['ubicacion']?.toString() ??
+        json['espacio_nombre']?.toString() ??
+        'Ubicación General';
+    final rawCreator =
+        json['creador_nombre']?.toString() ??
+        json['organizador_nombre']?.toString() ??
+        'Organizador';
+    final rawCreatorId =
+        json['creador_id'] as int? ?? json['organizador_id'] as int? ?? 0;
+
+    int rawCapacity = 50;
+    if (json['capacidad_maxima'] != null &&
+        json['capacidad_maxima'] is int &&
+        (json['capacidad_maxima'] as int) > 0) {
+      rawCapacity = json['capacidad_maxima'] as int;
+    } else if (json['cupo_maximo'] != null &&
+        json['cupo_maximo'] is int &&
+        (json['cupo_maximo'] as int) > 0) {
+      rawCapacity = json['cupo_maximo'] as int;
     }
 
     return EventModel(
@@ -68,12 +97,15 @@ class EventModel {
       descripcion: json['descripcion'] as String? ?? '',
       fecha: parsedFecha,
       fechaFin: parsedFechaFin,
-      ubicacion: json['ubicacion'] as String? ?? '',
-      creadorId: json['creador_id'] as int? ?? 0,
-      creadorNombre: json['creador_nombre'] as String? ?? 'Organizador',
+      ubicacion: rawLocation,
+      creadorId: rawCreatorId,
+      creadorNombre: rawCreator,
       categorias: cats,
-      cupoMaximo: json['cupo_maximo'] as int? ?? 50,
-      inscritosCount: json['inscritos_count'] as int? ?? 0,
+      cupoMaximo: rawCapacity,
+      inscritosCount:
+          json['inscritos_count'] as int? ??
+          json['asistentes_count'] as int? ??
+          0,
       estado: json['estado']?.toString() ?? 'Aprobado',
       createdAt: parsedCreated,
       imagenUrl: json['imagen_url']?.toString(),
@@ -85,13 +117,13 @@ class EventModel {
       'id': id,
       'titulo': titulo,
       'descripcion': descripcion,
-      'fecha': fecha.toIso8601String(),
+      'fecha_inicio': fecha.toIso8601String(),
       'fecha_fin': fechaFin?.toIso8601String(),
       'ubicacion': ubicacion,
       'creador_id': creadorId,
       'creador_nombre': creadorNombre,
       'categorias': categorias.map((e) => e.toJson()).toList(),
-      'cupo_maximo': cupoMaximo,
+      'capacidad_maxima': cupoMaximo,
       'inscritos_count': inscritosCount,
       'estado': estado,
       'created_at': createdAt.toIso8601String(),

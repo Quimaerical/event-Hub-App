@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/network/api_client.dart';
+import '../../../../core/utils/constants.dart';
 import '../../data/models/category_model.dart';
 import '../../../events/data/models/event_model.dart';
 import 'dashboard_event.dart';
@@ -63,25 +64,44 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
         queryParameters['search'] = query;
       }
       if (categoryId > 0) {
-        queryParameters['category'] = categoryId.toString();
+        queryParameters['category_id'] = categoryId.toString();
       }
 
-      final response = await apiClient.dio.get(
-        '/',
+      // 1. Fetch events from /api/v1/eventos
+      final eventsResponse = await apiClient.dio.get(
+        AppConstants.events,
         queryParameters: queryParameters,
       );
 
-      final data = response.data as Map<String, dynamic>;
+      List<EventModel> events = [];
+      if (eventsResponse.data is Map &&
+          eventsResponse.data['eventos'] is List) {
+        final eventsJson = eventsResponse.data['eventos'] as List;
+        events = eventsJson
+            .map((e) => EventModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+      } else if (eventsResponse.data is List) {
+        events = (eventsResponse.data as List)
+            .map((e) => EventModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
 
-      final eventsJson = data['eventos'] as List? ?? [];
-      final categoriesJson = data['categorias'] as List? ?? [];
-
-      final events = eventsJson
-          .map((e) => EventModel.fromJson(e as Map<String, dynamic>))
-          .toList();
-      final categories = categoriesJson
-          .map((e) => CategoryModel.fromJson(e as Map<String, dynamic>))
-          .toList();
+      // 2. Fetch categories from /api/v1/categorias
+      List<CategoryModel> categories = [];
+      try {
+        final categoriesResponse = await apiClient.dio.get(
+          AppConstants.categories,
+        );
+        if (categoriesResponse.data is Map &&
+            categoriesResponse.data['categorias'] is List) {
+          final catsJson = categoriesResponse.data['categorias'] as List;
+          categories = catsJson
+              .map((e) => CategoryModel.fromJson(e as Map<String, dynamic>))
+              .toList();
+        }
+      } catch (_) {
+        // Fallback: keep categories empty or soft handle
+      }
 
       emit(
         DashboardLoaded(

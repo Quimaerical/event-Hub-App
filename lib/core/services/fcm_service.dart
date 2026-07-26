@@ -69,12 +69,19 @@ class FcmService {
     }
   }
 
-  /// Sends the FCM token to the backend Go API endpoint `/perfil/fcm-token`
+  /// Sends the FCM token to the backend Go API endpoint `/auth/fcm-token` or `/perfil/fcm-token`
   Future<void> registerTokenWithBackend(String token) async {
     try {
-      await apiClient.dio.post('/perfil/fcm-token', data: {'fcm_token': token});
-    } catch (e) {
-      debugPrint('Error registering FCM token with backend: $e');
+      await apiClient.dio.post('/auth/fcm-token', data: {'fcm_token': token});
+    } catch (_) {
+      try {
+        await apiClient.dio.post(
+          '/perfil/fcm-token',
+          data: {'fcm_token': token},
+        );
+      } catch (e) {
+        debugPrint('Error registering FCM token with backend: $e');
+      }
     }
   }
 }

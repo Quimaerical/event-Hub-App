@@ -270,21 +270,27 @@ class _DrawerTile extends StatelessWidget {
             ? Border.all(color: AppTheme.brandViolet.withValues(alpha: 0.4))
             : null,
       ),
-      child: ListTile(
-        leading: Icon(
-          icon,
-          color: isActive ? AppTheme.brandViolet : AppTheme.textMuted,
-        ),
-        title: Text(
-          title,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
-            color: isActive ? AppTheme.textLight : AppTheme.textMuted,
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(14),
+        child: ListTile(
+          leading: Icon(
+            icon,
+            color: isActive ? AppTheme.brandViolet : AppTheme.textMuted,
+          ),
+          title: Text(
+            title,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
+              color: isActive ? AppTheme.textLight : AppTheme.textMuted,
+            ),
+          ),
+          onTap: onTap,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
           ),
         ),
-        onTap: onTap,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
     );
   }

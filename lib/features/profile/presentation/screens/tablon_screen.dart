@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/network/api_client.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/app_drawer.dart';
-import '../../../auth/presentation/bloc/auth_bloc.dart';
-import '../../../auth/presentation/bloc/auth_state.dart';
-import '../../../dashboard/presentation/bloc/dashboard_bloc.dart';
-import '../../../dashboard/presentation/bloc/dashboard_event.dart';
-import '../../../dashboard/presentation/bloc/dashboard_state.dart';
 import '../../../events/data/models/event_model.dart';
 import '../../../events/presentation/bloc/event_bloc.dart';
 import '../../../events/presentation/bloc/event_event.dart';
@@ -14,7 +10,6 @@ import '../../../events/presentation/bloc/event_state.dart';
 import '../../../events/presentation/screens/create_event_screen.dart';
 import '../../../events/presentation/screens/event_detail_screen.dart';
 
-/// Alias for conventional naming
 typedef TablonView = TablonScreen;
 
 class TablonScreen extends StatefulWidget {
@@ -25,29 +20,63 @@ class TablonScreen extends StatefulWidget {
 }
 
 class _TablonScreenState extends State<TablonScreen> {
+  final ApiClient _apiClient = ApiClient();
+  List<EventModel> _attendingEvents = [];
+  List<EventModel> _myCreatedEvents = [];
+  bool _isLoading = true;
+
   @override
   void initState() {
     super.initState();
-    context.read<DashboardBloc>().add(LoadDashboardData());
+    _fetchTablonData();
+  }
+
+  Future<void> _fetchTablonData() async {
+    setState(() => _isLoading = true);
+    try {
+      final res = await _apiClient.get('/tablon');
+      if (res is Map<String, dynamic>) {
+        final rawInscritos = (res['inscritos'] as List?) ?? [];
+        final rawCreados = (res['creados'] as List?) ?? [];
+
+        setState(() {
+          _attendingEvents = rawInscritos
+              .map((e) => EventModel.fromJson(e as Map<String, dynamic>))
+              .toList();
+          _myCreatedEvents = rawCreados
+              .map((e) => EventModel.fromJson(e as Map<String, dynamic>))
+              .toList();
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al cargar tablón: ${e.toString()}'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final authState = context.watch<AuthBloc>().state;
-    String userEmail = '';
-    int? userId;
-
-    if (authState is Authenticated) {
-      userEmail = authState.email;
-      userId = authState.userId;
-    }
-
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         drawer: const AppDrawer(currentRoute: 'tablon'),
         appBar: AppBar(
           title: const Text('Mi Tablón de Eventos'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: _fetchTablonData,
+              tooltip: 'Actualizar Tablón',
+            ),
+          ],
           bottom: const TabBar(
             indicatorColor: AppTheme.brandViolet,
             labelColor: AppTheme.brandViolet,
@@ -70,64 +99,30 @@ class _TablonScreenState extends State<TablonScreen> {
                       backgroundColor: AppTheme.seaGreen,
                     ),
                   );
-                  context.read<DashboardBloc>().add(LoadDashboardData());
+                  _fetchTablonData();
                 }
               },
-              child: BlocBuilder<DashboardBloc, DashboardState>(
-                builder: (context, state) {
-                  if (state is DashboardLoading || state is DashboardInitial) {
-                    return const Center(
-                      child: CircularProgressIndicator(color: AppTheme.skyBlue),
-                    );
-                  }
-
-                  if (state is DashboardLoaded) {
-                    final allEvents = state.events;
-
-                    // Filter events created by user
-                    final myEvents = allEvents.where((e) {
-                      if (userId != null) return e.creadorId == userId;
-                      return e.creadorNombre == userEmail ||
-                          e.organizadorNombre == userEmail;
-                    }).toList();
-
-                    // Filter events user is attending (for demo purposes, non-empty list or first half)
-                    final attendingEvents = allEvents
-                        .where(
-                          (e) => e.inscritosCount > 0 || myEvents.contains(e),
-                        )
-                        .toList();
-
-                    return TabBarView(
+              child: _isLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        color: AppTheme.brandViolet,
+                      ),
+                    )
+                  : TabBarView(
                       children: [
                         // Tab 1: Asistiré
                         _AttendingEventsTab(
-                          events: attendingEvents,
-                          onRefresh: () async {
-                            context.read<DashboardBloc>().add(
-                              LoadDashboardData(),
-                            );
-                          },
+                          events: _attendingEvents,
+                          onRefresh: _fetchTablonData,
                         ),
 
-                        // Tab 2: Mis Eventos
+                        // Tab 2: Mis Eventos Creados
                         _MyCreatedEventsTab(
-                          events: myEvents,
-                          onRefresh: () async {
-                            context.read<DashboardBloc>().add(
-                              LoadDashboardData(),
-                            );
-                          },
+                          events: _myCreatedEvents,
+                          onRefresh: _fetchTablonData,
                         ),
                       ],
-                    );
-                  }
-
-                  return const _EmptyTablonState(
-                    message: 'No se pudieron cargar los datos de tu tablón.',
-                  );
-                },
-              ),
+                    ),
             ),
           ),
         ),
@@ -152,7 +147,7 @@ class _AttendingEventsTab extends StatelessWidget {
     }
 
     return RefreshIndicator(
-      color: AppTheme.skyBlue,
+      color: AppTheme.brandViolet,
       onRefresh: onRefresh,
       child: ListView.builder(
         padding: const EdgeInsets.all(16.0),
@@ -182,7 +177,7 @@ class _MyCreatedEventsTab extends StatelessWidget {
     }
 
     return RefreshIndicator(
-      color: AppTheme.skyBlue,
+      color: AppTheme.brandViolet,
       onRefresh: onRefresh,
       child: ListView.builder(
         padding: const EdgeInsets.all(16.0),
@@ -233,7 +228,7 @@ class _TablonEventCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             event.ubicacion,
-            style: const TextStyle(fontSize: 13, color: AppTheme.skyBlue),
+            style: const TextStyle(fontSize: 13, color: AppTheme.brandViolet),
           ),
           const SizedBox(height: 14),
           Row(
@@ -270,7 +265,6 @@ class _TablonEventCard extends StatelessWidget {
                   child: ElevatedButton.icon(
                     onPressed: () async {
                       final messenger = ScaffoldMessenger.of(context);
-                      final bloc = context.read<DashboardBloc>();
                       final result = await Navigator.of(context).push<bool>(
                         MaterialPageRoute(
                           builder: (_) => CreateEventScreen(eventToEdit: event),
@@ -283,7 +277,6 @@ class _TablonEventCard extends StatelessWidget {
                             backgroundColor: AppTheme.seaGreen,
                           ),
                         );
-                        bloc.add(LoadDashboardData());
                       }
                     },
                     icon: const Icon(
@@ -293,7 +286,7 @@ class _TablonEventCard extends StatelessWidget {
                     ),
                     label: const Text('Editar', style: TextStyle(fontSize: 12)),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.skyBlue,
+                      backgroundColor: AppTheme.brandViolet,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -353,7 +346,7 @@ class _TablonStatusBadge extends StatelessWidget {
         badgeColor = Colors.redAccent;
         break;
       default:
-        badgeColor = AppTheme.skyBlue;
+        badgeColor = AppTheme.brandViolet;
     }
 
     return Container(

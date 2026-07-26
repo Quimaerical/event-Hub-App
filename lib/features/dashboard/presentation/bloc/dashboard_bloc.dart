@@ -98,6 +98,10 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
           categories = catsJson
               .map((e) => CategoryModel.fromJson(e as Map<String, dynamic>))
               .toList();
+        } else if (categoriesResponse.data is List) {
+          categories = (categoriesResponse.data as List)
+              .map((e) => CategoryModel.fromJson(e as Map<String, dynamic>))
+              .toList();
         }
       } catch (_) {
         // Fallback: keep categories empty or soft handle

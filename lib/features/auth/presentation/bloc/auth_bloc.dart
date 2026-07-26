@@ -70,8 +70,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     debugPrint('[AuthBloc Debug] Processing GoogleOAuthRequested event...');
+    emit(AuthLoading());
     try {
-      await _oAuthService.loginWithGoogle();
+      final res = await _oAuthService.loginWithGoogle();
+      if (res != null && res.containsKey('token')) {
+        final token = res['token'].toString();
+        final user = res['user'] as Map<String, dynamic>?;
+        final email = user?['email']?.toString() ?? 'google_user';
+        final userId = user?['id'] as int?;
+        final userRole = user?['role_nombre']?.toString();
+
+        await authRepository.saveSession(token, email);
+        emit(Authenticated(email: email, userId: userId, userRole: userRole));
+      } else {
+        emit(Unauthenticated());
+      }
     } catch (e) {
       debugPrint('[AuthBloc Debug] Google OAuth Error: $e');
       emit(AuthFailure(error: 'Error al iniciar sesión con Google: $e'));

@@ -130,35 +130,53 @@ class _EventCardState extends State<EventCard> {
                       // Date and Location Information
                       Row(
                         children: [
-                          const Icon(
-                            Icons.calendar_month_outlined,
-                            size: 14,
-                            color: AppTheme.brandViolet,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            '${widget.event.fecha.day}/${widget.event.fecha.month}/${widget.event.fecha.year} ${widget.event.fecha.hour.toString().padLeft(2, '0')}:${widget.event.fecha.minute.toString().padLeft(2, '0')}',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: AppTheme.textMuted,
+                          Flexible(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.calendar_month_outlined,
+                                  size: 14,
+                                  color: AppTheme.brandViolet,
+                                ),
+                                const SizedBox(width: 4),
+                                Flexible(
+                                  child: Text(
+                                    '${widget.event.fecha.day}/${widget.event.fecha.month}/${widget.event.fecha.year} ${widget.event.fecha.hour.toString().padLeft(2, '0')}:${widget.event.fecha.minute.toString().padLeft(2, '0')}',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      color: AppTheme.textMuted,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(width: 14),
-                          const Icon(
-                            Icons.location_on_outlined,
-                            size: 14,
-                            color: AppTheme.brandViolet,
-                          ),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              widget.event.ubicacion,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: AppTheme.textMuted,
-                              ),
+                          const SizedBox(width: 8),
+                          Flexible(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.location_on_outlined,
+                                  size: 14,
+                                  color: AppTheme.brandViolet,
+                                ),
+                                const SizedBox(width: 4),
+                                Flexible(
+                                  child: Text(
+                                    widget.event.ubicacion,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      color: AppTheme.textMuted,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],

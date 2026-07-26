@@ -65,6 +65,20 @@ Registra una nueva cuenta de usuario.
   ```
 * **Respuesta Exitosa (201 Created)**: Retorna el `token` JWT y objeto `user`.
 
+#### `POST /api/v1/auth/oauth-login`
+Autentica o registra un usuario utilizando proveedor nativo OAuth (Google / GitHub).
+
+* **Body JSON**:
+  ```json
+  {
+    "provider": "google",
+    "email": "usuario@gmail.com",
+    "name": "Nombre Usuario",
+    "provider_id": "google_oauth_id_string"
+  }
+  ```
+* **Respuesta Exitosa (200 OK)**: Retorna el `token` JWT y objeto `user`.
+
 #### `GET /api/v1/auth/me` *(Protegido)*
 Devuelve los datos del perfil del usuario autenticado.
 
